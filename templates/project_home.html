@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects — {{ profile.name }}</title>
+  <link rel="stylesheet" href="../static/styles.css">
+  <script src="../static/theme-toggle.js"></script>
+</head>
+<body>
+  <div class="page projects-page">
+
+    <header class="site-header">
+      <div class="header-row">
+        <div class="header-identity">
+          <img class="computer-icon" src="../assets/core-assets/icons/computer.svg" alt="" aria-hidden="true">
+          <div class="header-text">
+            <h1 class="site-name">{{ profile.name }}</h1>
+            <p class="site-role">{{ profile.role }}</p>
+            <p class="site-quote">&ldquo;{{ profile.quote }}&rdquo;</p>
+          </div>
+        </div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false">Dark Mode</button>
+      </div>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="../index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a> |
+        <a href="./" aria-current="page"><span class="icon" aria-hidden="true">📁</span> Projects</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="projects-intro box" aria-labelledby="projects-heading">
+        <h2 id="projects-heading" class="box-title"><span class="icon" aria-hidden="true">📁</span> Project Directory</h2>
+        <p>A selection of things I have built, researched, and shipped. Start with a featured project or browse the complete catalog below.</p>
+      </section>
+
+      {% set featured_projects = projects | selectattr('featured') | list %}
+      {% if featured_projects %}
+      <section id="featured-projects" class="projects-section" aria-labelledby="featured-heading">
+        <div class="section-heading">
+          <h2 id="featured-heading"><span class="icon" aria-hidden="true">⭐</span> Featured Projects</h2>
+          <p>Longer looks at work I am especially excited to share.</p>
+        </div>
+        <div class="featured-projects">
+          {% for project in featured_projects %}
+          <article class="featured-project-card">
+            <a class="featured-project-image" href="{{ project.project_name }}/">
+              <img src="../{{ project.image }}" alt="Screenshot of {{ project.title }}">
+            </a>
+            <div class="featured-project-copy">
+              <p class="project-kicker">Featured project</p>
+              <h3><a href="{{ project.project_name }}/">{{ project.title }}</a></h3>
+              <p class="project-tagline">{{ project.tagline }}</p>
+              <p>{{ project.description }}</p>
+              {% if project.technologies %}
+              <ul class="project-technologies" aria-label="Technologies used in {{ project.title }}">
+                {% for tech in project.technologies %}
+                <li>{{ tech.name }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+              <a class="project-link" href="{{ project.project_name }}/">Explore {{ project.title }} <span aria-hidden="true">→</span></a>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <section id="project-catalog" class="projects-section" aria-labelledby="catalog-heading">
+        <div class="section-heading">
+          <h2 id="catalog-heading"><span class="icon" aria-hidden="true">🗂️</span> Project Catalog</h2>
+          <p>Every project, with a quick visual and the tools behind it.</p>
+        </div>
+        <div class="project-catalog">
+          {% for project in projects %}
+          <article class="project-card">
+            <a class="project-card-image" href="{{ project.project_name }}/">
+              <img src="../{{ project.image }}" alt="Screenshot of {{ project.title }}">
+            </a>
+            <div class="project-card-copy">
+              <h3><a href="{{ project.project_name }}/">{{ project.title }}</a></h3>
+              <p class="project-tagline">{{ project.tagline }}</p>
+              <p>{{ project.description }}</p>
+              {% if project.technologies %}
+              <ul class="project-technologies" aria-label="Technologies used in {{ project.title }}">
+                {% for tech in project.technologies %}
+                <li>{{ tech.name }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+              <a class="project-link" href="{{ project.project_name }}/">View project <span aria-hidden="true">→</span></a>
+            </div>
+          </article>
+          {% else %}
+          <p class="empty-projects">Projects will appear here soon.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <nav class="site-nav" aria-label="Footer navigation">
+        <a href="../index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a> |
+        <a href="./" aria-current="page"><span class="icon" aria-hidden="true">📁</span> Projects</a>
+      </nav>
+      <p class="retro-badge"><span class="icon" aria-hidden="true">⭐</span> Best viewed with any browser, preferably with JavaScript enabled.</p>
+      <p>&copy; {{ profile.last_updated }} {{ profile.name }}. All rights reserved.</p>
+    </footer>
+
+  </div>
+</body>
+</html>

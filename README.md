@@ -93,6 +93,7 @@ tests/playwright/      # browser end-to-end tests, run separately (see docs/arch
 assets/                # images, and assets/download/ for files like a resume (gitignored, per-fork)
 assets/core-assets/    # assets the site itself uses (tracked, shared by every fork)
 docs/arch/             # architecture decision records
+docs/design/           # AI-facing design decision records and style guides
 docs/refs/             # visual reference material (inspiration, not used at build time)
 docs/guides/           # human-readable docs for people forking the repo
 docs/examples/         # example projects (placeholder — not written yet)

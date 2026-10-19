@@ -29,6 +29,7 @@ assets/              images; assets/download/ for files like a resume PDF — gi
                      assets/core-assets/ is copied into dist/assets/core-assets/ by copy_core_assets, see docs/arch/0020
 dist/                generated output — gitignored, fully rebuilt each run, never hand-edited
 docs/arch/           architecture decision records — read before structural changes
+docs/design/         AI-facing design decision records and style guides — read before visual changes
 docs/refs/           visual inspiration only, not consumed at build time
 docs/guides/         human-readable, user-facing docs (e.g. setting up data.json)
 docs/examples/       example projects — empty placeholder for now, see docs/TODO.md
@@ -80,6 +81,7 @@ pytest tests/playwright         # browser end-to-end tests; not run by tests/tes
 - Light mode is the default theme; a dark mode toggle in the header switches to the dark palette and the choice is remembered via `localStorage`. Both palettes live in `static/styles.css` as CSS custom properties under a `data-theme` attribute; the toggle behavior is one shared `static/theme-toggle.js` included by every template (see [0018](docs/arch/0018-light-dark-theme-toggle.md)).
 - `generate.py` stays a thin list of calls into `src/operations/`; actual logic never lives in the entrypoint.
 - New architectural decisions get a new numbered file in `docs/arch/`, not edits to old ones.
+- Durable non-architectural design decisions and AI-facing style guides get a new numbered file in `docs/design/`, using the same Context/Decision/Consequences/Keywords format as ADRs. See `docs/design/CLAUDE.md`.
 - Python must pass `ruff check` and `ruff format` (config in `ruff.toml`, see [0011](docs/arch/0011-linting-with-ruff.md)); the pre-commit hook enforces it.
 - Every function in `src/operations/` and `src/utils/` gets a Google-style docstring and a test in the mirrored path under `tests/` (see [0006](docs/arch/0006-testing-framework.md)). `generate.py` is exempt from both — it has no logic of its own to document or test.
 - Each operation's root function ends by logging one INFO line through `get_logger("<operation>")` from `src/utils/log.py`, saying what it did with concrete counts/paths. It never uses `print()`. `configure_logging()` is the first call in `generate.py` (see [0015](docs/arch/0015-operations-log-on-completion.md)).

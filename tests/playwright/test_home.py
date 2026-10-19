@@ -87,6 +87,20 @@ def test_featured_project_and_skills_render(page, site_url):
     assert "Example Technology" in page.locator(".skills-table").inner_text()
 
 
+def test_projects_index_has_featured_and_catalog_cards(page, site_url):
+    """The project index shows image-led featured and catalog views."""
+    page.goto(f"{site_url}/projects/")
+
+    assert page.title() == "Projects — Example Person"
+    assert page.locator("#featured-projects").get_by_role(
+        "link", name="Example Project"
+    ).is_visible()
+    assert page.locator(".project-catalog .project-card").count() == 1
+    assert page.locator(".project-card-image img").get_attribute("src") == (
+        "../assets/example.png"
+    )
+
+
 def test_theme_toggle_switches_and_persists_after_reload(page, site_url):
     """Clicking the toggle flips the theme and localStorage survives a reload."""
     page.goto(site_url)

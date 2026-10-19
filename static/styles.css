@@ -312,6 +312,166 @@ a:hover {
 }
 
 /* ---------------------------------------------------------------------- */
+/* Projects index                                                         */
+/* ---------------------------------------------------------------------- */
+
+.projects-page {
+  max-width: 1100px;
+}
+
+.projects-intro {
+  margin-bottom: 2rem;
+}
+
+.projects-intro p {
+  margin: 0.9rem 0;
+  max-width: 46rem;
+}
+
+.projects-section {
+  margin-bottom: 2.5rem;
+}
+
+.section-heading {
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 1rem;
+  padding-bottom: 0.6rem;
+}
+
+.section-heading h2 {
+  margin: 0;
+  color: var(--header-fg);
+  font-family: var(--font-heading);
+  font-size: 1.55rem;
+}
+
+.section-heading p {
+  margin: 0.2rem 0 0;
+}
+
+.featured-projects {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.featured-project-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.85fr) minmax(0, 1.15fr);
+  gap: 1.25rem;
+  border: 1px solid var(--border);
+  background-color: var(--box-bg);
+  padding: 1rem;
+}
+
+.featured-project-image,
+.project-card-image {
+  align-self: start;
+  border: 1px solid var(--border);
+  display: block;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.featured-project-image img,
+.project-card-image img {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.featured-project-copy h3,
+.project-card-copy h3 {
+  font-family: var(--font-heading);
+}
+
+.featured-project-copy h3 {
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+.project-kicker {
+  color: var(--role-color);
+  font-size: 0.8rem;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.2rem;
+  text-transform: uppercase;
+}
+
+.project-tagline {
+  font-weight: bold;
+  margin: 0.2rem 0 0.7rem;
+}
+
+.project-technologies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+}
+
+.project-technologies li {
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  padding: 0.1rem 0.4rem;
+}
+
+.project-link {
+  font-weight: bold;
+}
+
+.project-catalog {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.project-card {
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--box-bg);
+}
+
+.project-card-image {
+  aspect-ratio: 16 / 9;
+  background-color: var(--sidebar-bg);
+}
+
+.project-card-image img {
+  height: 100%;
+  object-fit: cover;
+}
+
+.project-card-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 0.85rem;
+}
+
+.project-card-copy h3 {
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.project-card-copy > p:not(.project-tagline) {
+  margin: 0 0 1rem;
+}
+
+.project-card-copy .project-link {
+  margin-top: auto;
+}
+
+.empty-projects {
+  border: 1px dashed var(--border);
+  margin: 0;
+  padding: 1rem;
+}
+
+/* ---------------------------------------------------------------------- */
 /* Skills table                                                            */
 /* ---------------------------------------------------------------------- */
 
@@ -413,6 +573,10 @@ a:hover {
   .theme-toggle {
     grid-column: 1;
     justify-self: center;
+  }
+
+  .featured-project-card {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -1,8 +1,9 @@
 # docs/ — guidance for AI agents
 
-This folder has four kinds of material, plus a TODO list. They're for different purposes — don't conflate them.
+This folder has five kinds of material, plus a TODO list. They're for different purposes — don't conflate them.
 
 - `docs/arch/` — **decisions already made.** Numbered ADRs explaining *why* the project is structured the way it is. Read these before proposing a structural change; if a decision here conflicts with a request, flag the conflict instead of silently overriding it.
+- `docs/design/` — **design decisions and style guides for AI agents.** Numbered, ADR-shaped records for durable non-architectural visual, content, and interaction guidance. Read these before changing presentation; see `docs/design/CLAUDE.md`.
 - `docs/refs/` — **visual inspiration only.** Images/links collected for the 90s aesthetic. Not consumed by `generate.py`, not content, not something `data.json` points to. See `docs/refs/CLAUDE.md`.
 - `docs/guides/` — **human-readable, user-facing documentation.** How-to material for someone forking the repo (e.g. setting up `data.json`), not rationale for agents. See `docs/guides/CLAUDE.md`.
 - `docs/examples/` — **example projects (placeholder, empty for now).** Reserved for complete example forks (sample `data.json` + assets). See `docs/examples/CLAUDE.md`.
@@ -34,5 +35,6 @@ This folder has four kinds of material, plus a TODO list. They're for different 
 | Add a core asset that needs to appear in `dist/`, or change how `assets/core-assets/` is copied | [0020-core-assets-copy-pipeline-and-icon-theming](arch/0020-core-assets-copy-pipeline-and-icon-theming.md) |
 | Add/change an icon, or add a brand/trademarked mark | [0021-emoji-icons-with-brand-mark-exception](arch/0021-emoji-icons-with-brand-mark-exception.md) |
 | Inline an SVG into a template, or change how the header computer image works | [0022-inline-svg-icons-and-real-computer-image](arch/0022-inline-svg-icons-and-real-computer-image.md) |
+| Create or change where durable design decisions and AI-facing style guides are recorded | [0023-design-decision-records](arch/0023-design-decision-records.md) |
 
-New decisions get a new numbered file in `docs/arch/`, not an edit to an old one (unless the old decision was wrong, in which case mark it Superseded and link forward).
+New architectural decisions get a new numbered file in `docs/arch/`, not an edit to an old one (unless the old decision was wrong, in which case mark it Superseded and link forward). New durable design decisions follow the equivalent rule in `docs/design/`.
