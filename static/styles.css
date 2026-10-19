@@ -407,10 +407,90 @@ a:hover {
 
   .header-identity {
     grid-column: 1;
+    gap: 1rem;
   }
 
   .theme-toggle {
     grid-column: 1;
     justify-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 0.5rem;
+    font-size: 14px;
+  }
+
+  .page {
+    padding: 0.5rem;
+  }
+
+  .computer-icon,
+  .floppy-icon {
+    display: none;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .header-identity {
+    gap: 0;
+    text-align: center;
+  }
+
+  .site-name {
+    font-size: 1.5rem;
+  }
+
+  .site-role {
+    font-size: 1rem;
+  }
+
+  .site-quote {
+    font-size: 0.8rem;
+  }
+
+  .welcome-row {
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-picture {
+    width: 100px;
+  }
+
+  .skills-table,
+  .skills-table tbody,
+  .skills-table thead {
+    display: block;
+    width: 100%;
+  }
+
+  .skills-table tr {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .skills-table thead tr {
+    display: none;
+  }
+
+  .skills-table td {
+    display: block;
+    border: none;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .skills-table td:first-child {
+    font-weight: bold;
+    border: 1px solid var(--border);
+    background-color: var(--header-bg);
+    color: var(--header-fg);
+  }
+
+  .skills-table tr {
+    border: 1px solid var(--border);
   }
 }
