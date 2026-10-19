@@ -1,5 +1,5 @@
 from src.utils import render as render_module
-from src.utils.render import render_template_to_dist
+from src.utils.render import inline_svg, render_template_to_dist
 
 
 def _patch_dirs(monkeypatch, templates_dir, dist_dir):
@@ -12,6 +12,30 @@ def _patch_dirs(monkeypatch, templates_dir, dist_dir):
     """
     monkeypatch.setattr(render_module, "TEMPLATES_DIR", templates_dir)
     monkeypatch.setattr(render_module, "DIST_DIR", dist_dir)
+
+
+def test_inline_svg_reads_file_contents_relative_to_root_dir(tmp_path, monkeypatch):
+    """inline_svg reads a file's raw contents, relative to ROOT_DIR."""
+    monkeypatch.setattr(render_module, "ROOT_DIR", tmp_path)
+    (tmp_path / "icons").mkdir()
+    (tmp_path / "icons" / "mark.svg").write_text("<svg>mark</svg>")
+
+    assert inline_svg("icons/mark.svg") == "<svg>mark</svg>"
+
+
+def test_render_template_to_dist_exposes_inline_svg_global(tmp_path, monkeypatch):
+    """Templates can call inline_svg() directly without it being in data."""
+    templates_dir = tmp_path / "templates"
+    templates_dir.mkdir()
+    (templates_dir / "index.html").write_text("{{ inline_svg('mark.svg') | safe }}")
+    dist_dir = tmp_path / "dist"
+    _patch_dirs(monkeypatch, templates_dir, dist_dir)
+    monkeypatch.setattr(render_module, "ROOT_DIR", tmp_path)
+    (tmp_path / "mark.svg").write_text("<svg>mark</svg>")
+
+    render_template_to_dist("index.html", {})
+
+    assert (dist_dir / "index.html").read_text() == "<svg>mark</svg>"
 
 
 def test_render_template_to_dist_renders_data_into_template(tmp_path, monkeypatch):

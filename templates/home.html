@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ profile.name }} — {{ profile.role }}</title>
+  <link rel="stylesheet" href="static/styles.css">
+  <script src="static/theme-toggle.js"></script>
+</head>
+<body>
+  <div class="page">
+
+    <header class="site-header">
+      <div class="header-row">
+        <div class="header-identity">
+          <img class="computer-icon" src="assets/core-assets/icons/computer.svg" alt="" aria-hidden="true">
+          <div class="header-text">
+            <h1 class="site-name">{{ profile.name }}</h1>
+            <p class="site-role">{{ profile.role }}</p>
+            <p class="site-quote">&ldquo;{{ profile.quote }}&rdquo;</p>
+          </div>
+          <img class="floppy-icon" src="assets/core-assets/icons/floppy-disk.svg" alt="" aria-hidden="true">
+        </div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false">Dark Mode</button>
+      </div>
+      <nav class="site-nav">
+        <a href="index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a> |
+        <a href="projects/"><span class="icon" aria-hidden="true">📁</span> Projects</a>
+      </nav>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="box">
+          <h2 class="box-title">Quick Navigation</h2>
+          <ul class="nav-list">
+            <li><a href="#about"><span class="icon" aria-hidden="true">👤</span> About Me</a></li>
+            <li><a href="#skills"><span class="icon" aria-hidden="true">🔨</span> Skills</a></li>
+            <li><a href="#projects"><span class="icon" aria-hidden="true">📁</span> Projects</a></li>
+            <li><a href="#resume"><span class="icon" aria-hidden="true">📄</span> Resume</a></li>
+            <li><a href="#links"><span class="icon" aria-hidden="true">🔗</span> Links</a></li>
+            <li><a href="#contact"><span class="icon" aria-hidden="true">✉️</span> Contact</a></li>
+          </ul>
+        </div>
+        <div class="box">
+          <h2 class="box-title">Quick Info</h2>
+          <p><strong>Location:</strong><br>{{ profile.location }}</p>
+          <p><strong>Email:</strong><br><a href="mailto:{{ profile.email }}">{{ profile.email }}</a></p>
+          <p><strong>Last Updated:</strong><br>{{ profile.last_updated }}</p>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section id="welcome" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">📝</span> Welcome!</h2>
+          <div class="welcome-row">
+            <img class="profile-picture" src="{{ profile.picture }}" alt="Photo of {{ profile.name }}">
+            <p>{{ profile.welcome }}</p>
+          </div>
+        </section>
+
+        <section id="about" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">👤</span> About Me</h2>
+          <p>{{ profile.about }}</p>
+        </section>
+
+        <section id="projects" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">📁</span> Featured Projects</h2>
+          <ul class="project-list">
+            {% for project in projects if project.featured %}
+            <li>
+              <a href="projects/{{ project.project_name }}/">{{ project.title }}</a>
+              — {{ project.tagline }}
+              <div class="project-tech">
+                {% for tech in project.technologies %}({{ tech.name }}){% if not loop.last %} {% endif %}{% endfor %}
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+          <p><a href="projects/">View more projects...</a></p>
+        </section>
+
+        <section id="skills" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🔨</span> Technical Skills</h2>
+          <table class="skills-table">
+            <thead>
+              <tr><th>Category</th><th>Technologies</th></tr>
+            </thead>
+            <tbody>
+              {% for row in profile.skills %}
+              <tr>
+                <td>{{ row.category }}</td>
+                <td class="tech-cell">
+                  {% for tech in row.technologies %}
+                  <span class="tech-badge"><img src="{{ tech.logo }}" alt="" class="tech-logo">{{ tech.name }}</span>
+                  {% endfor %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </section>
+
+        <div class="split">
+          <section id="resume" class="box">
+            <h2 class="box-title"><span class="icon" aria-hidden="true">📄</span> Resume</h2>
+            {% for link in profile.links if link.type == "download" %}
+            <p><a href="{{ link.url }}"><span class="icon" aria-hidden="true">💾</span> Download {{ link.label }} (PDF)</a></p>
+            {% endfor %}
+          </section>
+
+          <section id="contact" class="box">
+            <h2 class="box-title"><span class="icon" aria-hidden="true">✉️</span> Contact Me</h2>
+            <ul class="contact-list">
+              <li><strong>Email:</strong> <a href="mailto:{{ profile.email }}">{{ profile.email }}</a></li>
+              <li><strong>Location:</strong> {{ profile.location }}</li>
+            </ul>
+          </section>
+        </div>
+
+        <section id="links" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🔗</span> Find Me Online</h2>
+          <ul class="links-list">
+            {% for link in profile.links if link.type != "download" %}
+            <li>
+              <a href="{{ link.url }}">
+                {% if link.type == "github" %}
+                <span class="icon icon-github-mark" aria-hidden="true">{{ inline_svg('assets/core-assets/icons/github.svg') | safe }}</span>
+                {% elif link.type == "linkedin" %}
+                <span class="icon" aria-hidden="true">💼</span>
+                {% else %}
+                <span class="icon" aria-hidden="true">🔗</span>
+                {% endif %}
+                {{ link.label }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </section>
+      </main>
+    </div>
+
+    <footer class="site-footer">
+      <nav class="site-nav">
+        <a href="index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a> |
+        <a href="projects/"><span class="icon" aria-hidden="true">📁</span> Projects</a>
+      </nav>
+      <p class="retro-badge"><span class="icon" aria-hidden="true">⭐</span> Best viewed with any browser, preferably with JavaScript enabled.</p>
+      <p>&copy; {{ profile.last_updated }} {{ profile.name }}. All rights reserved.</p>
+    </footer>
+
+  </div>
+</body>
+</html>

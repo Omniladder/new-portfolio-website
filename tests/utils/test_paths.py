@@ -44,3 +44,14 @@ def test_mirrored_dirs_excludes_build_inputs():
     assert "static" in paths.MIRRORED_DIRS
     for excluded in ("templates", "docs", "src"):
         assert excluded not in paths.MIRRORED_DIRS
+
+
+def test_display_path_is_relative_inside_root_dir():
+    """Paths under ROOT_DIR are shown relative to it, for short log lines."""
+    assert paths.display_path(paths.DATA_TEMPLATE_PATH) == "data.template.json"
+
+
+def test_display_path_is_absolute_outside_root_dir(tmp_path):
+    """Paths outside ROOT_DIR (e.g. a temp --data file) are shown in full."""
+    outside = tmp_path / "data.json"
+    assert paths.display_path(outside) == str(outside.resolve())

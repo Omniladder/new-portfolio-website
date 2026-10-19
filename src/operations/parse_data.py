@@ -4,7 +4,10 @@ from pathlib import Path
 import jsonschema
 
 from src.errors.parse_data import DataParseError
-from src.utils.paths import DATA_PATH, DATA_SCHEMA_PATH
+from src.utils.log import get_logger, pluralize
+from src.utils.paths import DATA_PATH, DATA_SCHEMA_PATH, display_path
+
+_log = get_logger("parse_data")
 
 
 def parse_data(data_path: Path = None) -> dict:
@@ -34,4 +37,9 @@ def parse_data(data_path: Path = None) -> dict:
         raise DataParseError(
             f"{data_path} does not match the schema: {e.message}"
         ) from e
+    _log.info(
+        "Validated %s against the schema (%s)",
+        display_path(data_path),
+        pluralize(len(data.get("projects", [])), "project"),
+    )
     return data

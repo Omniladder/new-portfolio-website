@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 
 from src.errors.scaffold_dist import DistScaffoldError
@@ -88,3 +90,15 @@ def test_scaffold_dist_raises_on_os_error(tmp_path, monkeypatch):
 
     with pytest.raises(DistScaffoldError, match="disk error"):
         scaffold_dist_module.scaffold_dist()
+
+
+def test_scaffold_dist_logs_directory_count(tmp_path, monkeypatch, caplog):
+    """scaffold_dist logs how many directories it created under dist/."""
+    caplog.set_level(logging.INFO, logger="portfolio")
+    root_dir = _make_fake_root(tmp_path)
+    _patch_paths(monkeypatch, root_dir)
+
+    scaffold_dist_module.scaffold_dist()
+
+    # assets/, assets/download/, static/
+    assert "(3 directories)" in caplog.text

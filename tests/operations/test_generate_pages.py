@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 
 from src.errors.generate_pages import PageGenerationError
@@ -136,3 +138,15 @@ def test_generate_pages_calls_generate_home_and_generate_projects(monkeypatch):
     generate_pages(data)
 
     assert calls == [("home", data), ("projects_home", data), ("projects", data)]
+
+
+def test_generate_pages_logs_page_count(monkeypatch, caplog):
+    """generate_pages logs the total pages rendered, broken down by kind."""
+    caplog.set_level(logging.INFO, logger="portfolio")
+    for name in ("generate_home", "generate_projects_home", "generate_projects"):
+        monkeypatch.setattr(generate_pages_module, name, lambda data: None)
+    data = {"projects": [{"project_name": "example_project"}]}
+
+    generate_pages(data)
+
+    assert "Rendered 3 pages (home, projects index, 1 project page)" in caplog.text

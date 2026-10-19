@@ -1,4 +1,5 @@
 import json
+import logging
 
 import pytest
 
@@ -98,5 +99,59 @@ def test_data_template_json_matches_schema():
     with what parse_data() actually accepts.
     """
     assert parse_data(DATA_TEMPLATE_PATH) == {
-        "projects": [{"project_name": "example_project"}]
+        "profile": {
+            "name": "Example Person",
+            "role": "Software Engineer",
+            "tagline": "Example Tagline — Example Role @ Example Company",
+            "quote": "Example Quote Goes Here",
+            "picture": "assets/example.png",
+            "welcome": "Example welcome blurb introducing the site.",
+            "about": "Example longer bio paragraph about who you are and what you do.",
+            "location": "Example City, ST",
+            "email": "example@example.com",
+            "last_updated": "Example Month Year",
+            "skills": [
+                {
+                    "category": "Example Category",
+                    "technologies": [
+                        {
+                            "name": "Example Technology",
+                            "logo": "assets/example-logo.png",
+                        }
+                    ],
+                }
+            ],
+            "links": [
+                {
+                    "label": "Example Link",
+                    "url": "https://example.com",
+                    "type": "website",
+                }
+            ],
+        },
+        "projects": [
+            {
+                "project_name": "example_project",
+                "title": "Example Project",
+                "tagline": "Example Project Tagline",
+                "description": "Example Project Description",
+                "image": "assets/example.png",
+                "featured": True,
+                "technologies": [],
+                "links": [],
+            }
+        ],
     }
+
+
+def test_parse_data_logs_path_and_project_count(tmp_path, monkeypatch, caplog):
+    """A successful parse logs the file it validated and how many projects it has."""
+    caplog.set_level(logging.INFO, logger="portfolio")
+    _patch_schema(monkeypatch, tmp_path, {"type": "object"})
+    data_path = tmp_path / "data.json"
+    data_path.write_text(json.dumps({"projects": [{}, {}]}))
+
+    parse_data(data_path)
+
+    assert f"Validated {data_path.resolve()}" in caplog.text
+    assert "2 projects" in caplog.text

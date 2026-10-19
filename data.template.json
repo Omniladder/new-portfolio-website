@@ -1,7 +1,44 @@
 {
+  "profile": {
+    "name": "Example Person",
+    "role": "Software Engineer",
+    "tagline": "Example Tagline — Example Role @ Example Company",
+    "quote": "Example Quote Goes Here",
+    "picture": "assets/example.png",
+    "welcome": "Example welcome blurb introducing the site.",
+    "about": "Example longer bio paragraph about who you are and what you do.",
+    "location": "Example City, ST",
+    "email": "example@example.com",
+    "last_updated": "Example Month Year",
+    "skills": [
+      {
+        "category": "Example Category",
+        "technologies": [
+          {
+            "name": "Example Technology",
+            "logo": "assets/example-logo.png"
+          }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "label": "Example Link",
+        "url": "https://example.com",
+        "type": "website"
+      }
+    ]
+  },
   "projects": [
     {
-      "project_name": "example_project"
+      "project_name": "example_project",
+      "title": "Example Project",
+      "tagline": "Example Project Tagline",
+      "description": "Example Project Description",
+      "image": "assets/example.png",
+      "featured": true,
+      "technologies": [],
+      "links": []
     }
   ]
 }

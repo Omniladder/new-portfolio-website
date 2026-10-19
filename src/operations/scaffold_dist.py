@@ -1,7 +1,10 @@
 import shutil
 
 from src.errors.scaffold_dist import DistScaffoldError
-from src.utils.paths import DIST_DIR, MIRRORED_DIRS, ROOT_DIR
+from src.utils.log import get_logger, pluralize
+from src.utils.paths import DIST_DIR, MIRRORED_DIRS, ROOT_DIR, display_path
+
+_log = get_logger("scaffold_dist")
 
 
 def scaffold_dist() -> None:
@@ -34,3 +37,10 @@ def scaffold_dist() -> None:
                     )
     except OSError as e:
         raise DistScaffoldError(f"Failed to rebuild {DIST_DIR}: {e}") from e
+
+    directory_count = sum(1 for path in DIST_DIR.rglob("*") if path.is_dir())
+    _log.info(
+        "Rebuilt %s/ (%s)",
+        display_path(DIST_DIR),
+        pluralize(directory_count, "directory", "directories"),
+    )

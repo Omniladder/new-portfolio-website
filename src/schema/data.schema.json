@@ -4,19 +4,197 @@
   "description": "Schema for the site content consumed by generate.py. Fields get added here as generation logic lands, in lockstep with docs/guides/data-json.md.",
   "type": "object",
   "properties": {
+    "profile": {
+      "type": "object",
+      "description": "Home page content: who the site belongs to.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full name shown in the page header."
+        },
+        "role": {
+          "type": "string",
+          "description": "Short headline under the name, e.g. 'Software Engineer'."
+        },
+        "tagline": {
+          "type": "string",
+          "description": "One-line current role/status shown under the role."
+        },
+        "quote": {
+          "type": "string",
+          "description": "A short, personal line shown near the top of the page."
+        },
+        "picture": {
+          "type": "string",
+          "description": "Path to a photo under assets/."
+        },
+        "welcome": {
+          "type": "string",
+          "description": "Short welcome blurb shown at the top of the page."
+        },
+        "about": {
+          "type": "string",
+          "description": "Longer bio paragraph."
+        },
+        "location": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "last_updated": {
+          "type": "string",
+          "description": "Display string shown in the 'last updated' sidebar, e.g. 'October 2026'."
+        },
+        "skills": {
+          "type": "array",
+          "description": "Skills table rows, grouped by category.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string"
+              },
+              "technologies": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "logo": {
+                      "type": "string",
+                      "description": "Path to a logo image under assets/."
+                    }
+                  },
+                  "required": ["name", "logo"],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": ["category", "technologies"],
+            "additionalProperties": false
+          }
+        },
+        "links": {
+          "type": "array",
+          "description": "Site-wide links: GitHub, LinkedIn, resume, etc.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string",
+                "description": "External URL, or a path under assets/download/ for downloadable files."
+              },
+              "type": {
+                "type": "string",
+                "enum": ["github", "linkedin", "website", "download"]
+              }
+            },
+            "required": ["label", "url", "type"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "name",
+        "role",
+        "tagline",
+        "quote",
+        "picture",
+        "welcome",
+        "about",
+        "location",
+        "email",
+        "last_updated",
+        "skills",
+        "links"
+      ],
+      "additionalProperties": false
+    },
     "projects": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "project_name": {
+            "type": "string",
+            "description": "URL-safe slug. Doubles as the dist/projects/<project_name>/ directory name, see docs/arch/0010."
+          },
+          "title": {
+            "type": "string",
+            "description": "Human-readable project name shown on the page."
+          },
+          "tagline": {
             "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "description": "Path to a screenshot under assets/."
+          },
+          "featured": {
+            "type": "boolean",
+            "description": "Whether this project appears in the home page's Featured Projects section. Optional, defaults to not featured."
+          },
+          "technologies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "logo": {
+                  "type": "string",
+                  "description": "Path to a logo image under assets/."
+                }
+              },
+              "required": ["name", "logo"],
+              "additionalProperties": false
+            }
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string",
+                  "description": "External URL, or a path under assets/download/ for downloadable files."
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["github", "linkedin", "website", "download"]
+                }
+              },
+              "required": ["label", "url", "type"],
+              "additionalProperties": false
+            }
           }
         },
-        "required": ["project_name"],
+        "required": [
+          "project_name",
+          "title",
+          "tagline",
+          "description",
+          "image",
+          "technologies",
+          "links"
+        ],
         "additionalProperties": false
       }
     }
   },
+  "required": ["profile", "projects"],
   "additionalProperties": false
 }

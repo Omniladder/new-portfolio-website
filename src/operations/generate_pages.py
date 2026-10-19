@@ -1,7 +1,10 @@
 import jinja2
 
 from src.errors.generate_pages import PageGenerationError
+from src.utils.log import get_logger, pluralize
 from src.utils.render import render_template_to_dist
+
+_log = get_logger("generate_pages")
 
 
 def generate_pages(data: dict) -> None:
@@ -16,6 +19,13 @@ def generate_pages(data: dict) -> None:
     generate_home(data)
     generate_projects_home(data)
     generate_projects(data)
+
+    project_count = len(data.get("projects", []))
+    _log.info(
+        "Rendered %s (home, projects index, %s)",
+        pluralize(project_count + 2, "page"),
+        pluralize(project_count, "project page"),
+    )
 
 
 def generate_home(data: dict) -> None:

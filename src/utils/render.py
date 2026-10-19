@@ -1,6 +1,26 @@
 import jinja2
 
-from src.utils.paths import DIST_DIR, TEMPLATES_DIR
+from src.utils.paths import DIST_DIR, ROOT_DIR, TEMPLATES_DIR
+
+
+def inline_svg(relative_path: str) -> str:
+    """Read an SVG file's contents for inline embedding in a template.
+
+    Embedding the markup directly, instead of referencing the file from an
+    <img> or a CSS mask-image, means the icon always renders even when the
+    page is opened via file:// rather than a server (an unreliable load for
+    external mask/image resources in some browsers), and keeps it
+    theme-aware, since a `fill="currentColor"` in the source SVG resolves
+    against the surrounding page's CSS once it's truly inline. See
+    docs/arch/0021. Use with Jinja's `| safe` filter at the call site.
+
+    Args:
+        relative_path: Path to the SVG file, relative to ROOT_DIR.
+
+    Returns:
+        str: The file's raw contents.
+    """
+    return (ROOT_DIR / relative_path).read_text()
 
 
 def render_template_to_dist(
@@ -24,6 +44,7 @@ def render_template_to_dist(
         output_path = template_path
 
     environment = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATES_DIR))
+    environment.globals["inline_svg"] = inline_svg
     template = environment.get_template(template_path)
     rendered = template.render(**data)
 

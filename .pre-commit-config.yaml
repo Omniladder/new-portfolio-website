@@ -9,12 +9,14 @@ repos:
         entry: trailing-whitespace-fixer
         language: system
         types: [text]
+        files: ^(src/|tests/|templates/|static/|generate\.py$)
         args: [--markdown-linebreak-ext=md]
       - id: end-of-file-fixer
         name: Ensure files end with a newline
         entry: end-of-file-fixer
         language: system
         types: [text]
+        files: ^(src/|tests/|templates/|static/|generate\.py$)
       - id: check-json
         name: Check JSON syntax
         entry: check-json
@@ -30,6 +32,7 @@ repos:
         entry: check-merge-conflict
         language: system
         types: [text]
+        files: ^(src/|tests/|templates/|static/|generate\.py$)
       - id: check-added-large-files
         name: Check for large added files
         entry: check-added-large-files
