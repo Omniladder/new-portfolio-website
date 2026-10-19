@@ -1,0 +1,26 @@
+# Ruff lint + format config. See docs/arch/0011-linting-with-ruff.md.
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort (import ordering)
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "SIM",  # flake8-simplify
+    "D",    # pydocstyle (Google convention, below)
+]
+
+[lint.pydocstyle]
+convention = "google"
+
+[lint.per-file-ignores]
+# generate.py is a thin entrypoint with no logic to document (docs/arch/0004).
+"generate.py" = ["D"]
+# Tests aren't held to the docstring rule (docs/arch/0006).
+"tests/**" = ["D"]
+# Module-level docstrings aren't required in src/; function docstrings are.
+"src/**" = ["D100", "D104"]

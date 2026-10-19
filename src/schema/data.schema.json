@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "data.json",
+  "description": "Schema for the site content consumed by generate.py. Fields get added here as generation logic lands, in lockstep with docs/guides/data-json.md.",
+  "type": "object",
+  "properties": {
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "project_name": {
+            "type": "string"
+          }
+        },
+        "required": ["project_name"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

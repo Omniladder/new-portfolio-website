@@ -1,0 +1,55 @@
+# All hooks are `language: system`: they run from the active venv that
+# requirements-dev.txt was installed into. See docs/arch/0007 and 0011.
+repos:
+  - repo: local
+    hooks:
+      # General file hygiene (from the pre-commit-hooks pip package).
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+        entry: trailing-whitespace-fixer
+        language: system
+        types: [text]
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+        name: Ensure files end with a newline
+        entry: end-of-file-fixer
+        language: system
+        types: [text]
+      - id: check-json
+        name: Check JSON syntax
+        entry: check-json
+        language: system
+        types: [json]
+      - id: check-yaml
+        name: Check YAML syntax
+        entry: check-yaml
+        language: system
+        types: [yaml]
+      - id: check-merge-conflict
+        name: Check for merge conflict markers
+        entry: check-merge-conflict
+        language: system
+        types: [text]
+      - id: check-added-large-files
+        name: Check for large added files
+        entry: check-added-large-files
+        language: system
+
+      # Python lint + format.
+      - id: ruff-check
+        name: Lint Python (ruff check)
+        entry: ruff check --fix
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: Format Python (ruff format)
+        entry: ruff format
+        language: system
+        types: [python]
+
+      - id: run-tests
+        name: Run test suite (tests/test.py)
+        entry: python3 tests/test.py
+        language: system
+        pass_filenames: false
+        always_run: true

@@ -1,0 +1,22 @@
+# Build output
+/dist/
+
+# Per-fork content — copy data.template.json to create this
+/data.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.ruff_cache/
+.pytest_cache/
+
+# OS / editor cruft
+.DS_Store
+.vscode/
+.idea/
+
+# For stuff I want to hide
+hidden/
