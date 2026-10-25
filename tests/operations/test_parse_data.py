@@ -97,51 +97,11 @@ def test_data_template_json_matches_schema():
     """data.template.json — the tracked file forks copy to data.json — must
     always validate against the real schema, so it never drifts out of sync
     with what parse_data() actually accepts.
+
+    Only validity is checked, not the exact contents, so the example can be
+    edited freely. The site is never built from it (docs/arch/0033).
     """
-    assert parse_data(DATA_TEMPLATE_PATH) == {
-        "profile": {
-            "name": "Example Person",
-            "role": "Software Engineer",
-            "tagline": "Example Tagline — Example Role @ Example Company",
-            "quote": "Example Quote Goes Here",
-            "picture": "assets/example.png",
-            "welcome": "Example welcome blurb introducing the site.",
-            "about": "Example longer bio paragraph about who you are and what you do.",
-            "location": "Example City, ST",
-            "email": "example@example.com",
-            "last_updated": "Example Month Year",
-            "skills": [
-                {
-                    "category": "Example Category",
-                    "technologies": [
-                        {
-                            "name": "Example Technology",
-                            "logo": "assets/example-logo.png",
-                        }
-                    ],
-                }
-            ],
-            "links": [
-                {
-                    "label": "Example Link",
-                    "url": "https://example.com",
-                    "type": "website",
-                }
-            ],
-        },
-        "projects": [
-            {
-                "project_name": "example_project",
-                "title": "Example Project",
-                "tagline": "Example Project Tagline",
-                "description": "Example Project Description",
-                "image": "assets/example.png",
-                "featured": True,
-                "technologies": [],
-                "links": [],
-            }
-        ],
-    }
+    assert isinstance(parse_data(DATA_TEMPLATE_PATH), dict)
 
 
 def test_parse_data_logs_path_and_project_count(tmp_path, monkeypatch, caplog):

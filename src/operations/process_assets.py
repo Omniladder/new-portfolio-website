@@ -15,12 +15,19 @@ from src.utils.paths import DIST_DIR, ROOT_DIR
 _log = get_logger("process_assets")
 
 
-def process_assets() -> None:
-    """Process every top-level image in assets/ into dist/assets/.
+# Subdirectories of assets/ that other operations copy, so process_assets
+# leaves them alone: copy_downloads and copy_core_assets respectively.
+SKIPPED_SUBDIRS = {"download", "core-assets"}
 
-    Only files directly inside ``assets/`` are processed — subdirectories
-    (e.g. ``assets/download/``, which holds non-image downloadable files)
-    are left alone, per docs/arch/0013.
+
+def process_assets() -> None:
+    """Process every image in assets/ and its subfolders into dist/assets/.
+
+    Images can be organized into any folder structure under ``assets/``
+    (e.g. ``assets/projects/<project_name>/``), which is mirrored into
+    ``dist/assets/``. ``assets/download/`` and ``assets/core-assets/`` are
+    skipped, since copy_downloads and copy_core_assets copy those as-is. See
+    docs/arch/0032.
 
     Returns:
         None.
@@ -28,8 +35,10 @@ def process_assets() -> None:
     assets_dir = ROOT_DIR / "assets"
     image_paths = sorted(
         path
-        for path in assets_dir.iterdir()
-        if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS
+        for path in assets_dir.rglob("*")
+        if path.is_file()
+        and path.suffix.lower() in IMAGE_EXTENSIONS
+        and path.relative_to(assets_dir).parts[0] not in SKIPPED_SUBDIRS
     )
 
     for source_path in tqdm(image_paths, desc="Processing assets"):
@@ -63,5 +72,5 @@ def process_asset(source_path: Path) -> None:
         write_image_data(destination_path, data)
     except OSError as e:
         raise AssetProcessingError(
-            f"Failed to process asset '{source_path.name}': {e}"
+            f"Failed to process asset '{source_path.relative_to(ROOT_DIR)}': {e}"
         ) from e

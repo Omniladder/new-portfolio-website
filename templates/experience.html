@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experience — {{ profile.name }}</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/core-assets/icons/computer.svg">
+  <link rel="stylesheet" href="../static/styles.css">
+  <script src="../static/theme-toggle.js"></script>
+</head>
+<body>
+  <div class="page experience-page">
+
+    {% set root = "../" %}
+    {% set current_page = "experience" %}
+    {% include "partials/header.html" %}
+
+    {% macro link_icon(type) -%}
+      {%- if type == "github" -%}
+      <span class="icon icon-github-mark" aria-hidden="true">{{ inline_svg('assets/core-assets/icons/github.svg') | safe }}</span>
+      {%- elif type == "download" -%}
+      <span class="icon" aria-hidden="true">💾</span>
+      {%- elif type == "linkedin" -%}
+      <span class="icon" aria-hidden="true">💼</span>
+      {%- else -%}
+      <span class="icon" aria-hidden="true">🌐</span>
+      {%- endif -%}
+    {%- endmacro %}
+
+    {# Dates arrive as YYYY-MM(-DD); these turn them into month numbers and labels. #}
+    {% set month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] %}
+    {% macro month_index(ym) -%}{{ (ym[:4] | int) * 12 + (ym[5:7] | int) - 1 }}{%- endmacro %}
+    {% macro month_label(ym) -%}{{ month_names[(ym[5:7] | int) - 1] }} {{ ym[:4] }}{%- endmacro %}
+    {% macro job_dates(job) -%}{{ month_label(job.start) }} – {{ month_label(job.end) if job.end else "Present" }}{%- endmacro %}
+    {% macro job_length(job) -%}
+      {%- set n = (month_index(job.end or build_month) | int) - (month_index(job.start) | int) + 1 -%}
+      {%- set y = n // 12 -%}{%- set m = n % 12 -%}
+      {%- if y %}{{ y }} yr{{ "s" if y > 1 }}{% endif %}{% if y and m %} {% endif %}{% if m %}{{ m }} mo{{ "s" if m > 1 }}{% endif -%}
+    {%- endmacro %}
+
+    {% set xp = experience or {} %}
+    {% set positions = xp.positions or [] %}
+    {% set events = xp.events or [] %}
+    {% set certifications = xp.certifications or [] %}
+
+    {% if positions or events or certifications %}
+    {# project_name -> project, so jobs and events can link to what they produced. #}
+    {% set project_by_slug = {} %}
+    {% for p in projects %}{% set _ = project_by_slug.update({p.project_name: p}) %}{% endfor %}
+
+    {# Every technology across all jobs, once each, with the roles that used it. #}
+    {% set tools = [] %}
+    {% set tool_index = {} %}
+    {% for job in positions %}
+      {% for tech in job.technologies or [] %}
+        {% if tech.name in tool_index %}
+          {% set _ = tools[tool_index[tech.name]].roles.append(job.title) %}
+        {% else %}
+          {% set _ = tool_index.update({tech.name: tools | length}) %}
+          {% set _ = tools.append({"name": tech.name, "logo": tech.logo, "roles": [job.title]}) %}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+    {% for tool in tools %}{% set _ = tool.update({"count": tool.roles | length}) %}{% endfor %}
+
+    {% set award_count = events | map(attribute="awards") | select | map("length") | sum %}
+    {% set linked_projects = (positions | map(attribute="projects") | select | sum(start=[])) + (events | map(attribute="project") | select | list) %}
+
+    {# Timeline axis: whole calendar years from the earliest to the latest date. #}
+    {% set span = namespace(lo=99999, hi=0) %}
+    {% for job in positions %}
+      {% set span.lo = [span.lo, job.start[:4] | int] | min %}
+      {% set span.hi = [span.hi, (job.end or build_month)[:4] | int] | max %}
+    {% endfor %}
+    {% for item in events + certifications %}
+      {% set span.lo = [span.lo, item.date[:4] | int] | min %}
+      {% set span.hi = [span.hi, item.date[:4] | int] | max %}
+    {% endfor %}
+    {% set axis_start = span.lo * 12 %}
+    {% set axis_months = (span.hi - span.lo + 1) * 12 %}
+    {% macro axis_pct(index) -%}{{ ((index - axis_start) / axis_months * 100) | round(2) }}{%- endmacro %}
+
+    {% set current = positions[0] if positions and not positions[0].end else none %}
+    <section class="project-hero experience-hero">
+      {% if current %}
+      <p class="experience-kicker"><span class="icon" aria-hidden="true">💼</span> Currently</p>
+      <h2 class="project-title">{{ current.title }}</h2>
+      <p class="project-subtitle">{{ current.organization }}</p>
+      <p class="education-meta">
+        <span><span class="icon" aria-hidden="true">📅</span> {{ job_dates(current) }} ({{ job_length(current) }})</span>
+        {% if current.location %}<span><span class="icon" aria-hidden="true">📍</span> {{ current.location }}</span>{% endif %}
+      </p>
+      {% else %}
+      <p class="experience-kicker"><span class="icon" aria-hidden="true">💼</span> Career</p>
+      <h2 class="project-title">Experience</h2>
+      {% endif %}
+      {% if xp.links %}
+      <ul class="project-actions" aria-label="Experience links">
+        {% for link in xp.links %}
+        <li>
+          <a class="retro-button" href="{{ root ~ link.url if link.type == 'download' else link.url }}"{% if link.type == "download" %} download{% endif %}>
+            {{ link_icon(link.type) }}{{ link.label }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </section>
+
+    <div class="layout project-layout experience-layout">
+      <aside class="sidebar">
+        <div class="box on-this-page">
+          <h2 class="box-title">On This Page</h2>
+          <ul class="nav-list">
+            {% if xp.summary %}
+            <li><a href="#xp-overview"><span class="icon" aria-hidden="true">🧭</span> Overview</a></li>
+            {% endif %}
+            <li><a href="#xp-timeline"><span class="icon" aria-hidden="true">🗓️</span> Timeline</a></li>
+            {% if positions %}
+            <li><a href="#xp-work"><span class="icon" aria-hidden="true">💼</span> Work History</a></li>
+            {% endif %}
+            {% if events %}
+            <li><a href="#xp-events"><span class="icon" aria-hidden="true">🏆</span> Hackathons</a></li>
+            {% endif %}
+            {% if certifications %}
+            <li><a href="#xp-certifications"><span class="icon" aria-hidden="true">📜</span> Certifications</a></li>
+            {% endif %}
+            {% if tools %}
+            <li><a href="#xp-toolbox"><span class="icon" aria-hidden="true">🧰</span> Toolbox</a></li>
+            {% endif %}
+          </ul>
+        </div>
+
+        <div class="box">
+          <h2 class="box-title">At a Glance</h2>
+          <dl class="glance-list">
+            {% if positions %}<div><dt>Positions</dt><dd>{{ positions | length }}</dd></div>{% endif %}
+            {% if events %}<div><dt>Hackathons</dt><dd>{{ events | length }}</dd></div>{% endif %}
+            {% if award_count %}<div><dt>Awards won</dt><dd>{{ award_count }}</dd></div>{% endif %}
+            {% if certifications %}<div><dt>Certifications</dt><dd>{{ certifications | length }}</dd></div>{% endif %}
+            {% if linked_projects %}<div><dt>Projects</dt><dd>{{ linked_projects | unique | list | length }}</dd></div>{% endif %}
+            {% if tools %}<div><dt>Technologies</dt><dd>{{ tools | length }}</dd></div>{% endif %}
+          </dl>
+        </div>
+      </aside>
+
+      <main class="content">
+        {% if xp.summary %}
+        <section id="xp-overview" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🧭</span> Overview</h2>
+          {% for paragraph in xp.summary.split("\n\n") %}
+          <p>{{ paragraph }}</p>
+          {% endfor %}
+        </section>
+        {% endif %}
+
+        <section id="xp-timeline" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🗓️</span> Timeline</h2>
+          <p class="section-intro">Jobs as bars, oldest at the top; hover a marker for the event.</p>
+          {# Gridlines mark each year: the track background repeats once per year. #}
+          <div class="xp-timeline" style="--xp-years: {{ span.hi - span.lo + 1 }}">
+            {% for job in positions | reverse %}
+            {% set s = month_index(job.start) | int %}
+            {% set e = month_index(job.end or build_month) | int %}
+            <div class="xp-row">
+              <span class="xp-row-label"><a href="#xp-job-{{ positions | length - loop.index0 }}">{{ job.title }}</a></span>
+              <span class="xp-track">
+                <span class="xp-bar{% if not job.end %} is-current{% endif %}" style="left: {{ axis_pct(s) }}%; width: {{ axis_pct(axis_start + e - s + 1) }}%" title="{{ job.title }}, {{ job.organization }}: {{ job_dates(job) }} ({{ job_length(job) }})"></span>
+              </span>
+            </div>
+            {% endfor %}
+            {% if events %}
+            <div class="xp-row">
+              <span class="xp-row-label"><a href="#xp-events">Hackathons</a></span>
+              <span class="xp-track">
+                {% for event in events %}
+                <a class="xp-marker{% if event.awards %} has-award{% endif %}" href="#xp-event-{{ loop.index }}" style="left: {{ axis_pct((month_index(event.date) | int) + 0.5) }}%" title="{{ event.name }}: {{ event.dates or month_label(event.date) }}{% if event.awards %}, {{ event.awards | join(', ') }}{% endif %}" aria-label="{{ event.name }}">{{ "★" if event.awards else "◆" }}</a>
+                {% endfor %}
+              </span>
+            </div>
+            {% endif %}
+            {% if certifications %}
+            <div class="xp-row">
+              <span class="xp-row-label"><a href="#xp-certifications">Certifications</a></span>
+              <span class="xp-track">
+                {% for cert in certifications %}
+                <a class="xp-marker is-cert" href="#xp-cert-{{ loop.index }}" style="left: {{ axis_pct((month_index(cert.date) | int) + 0.5) }}%" title="{{ cert.name }}: {{ month_label(cert.date) }}" aria-label="{{ cert.name }}">●</a>
+                {% endfor %}
+              </span>
+            </div>
+            {% endif %}
+            <div class="xp-row xp-axis" aria-hidden="true">
+              <span class="xp-row-label"></span>
+              <span class="xp-years">
+                {% for year in range(span.lo, span.hi + 1) %}<span>{{ year }}</span>{% endfor %}
+              </span>
+            </div>
+          </div>
+          <p class="gpa-note">
+            <span class="xp-key xp-key-bar" aria-hidden="true"></span> job
+            {% if positions | rejectattr("end") | list %}&nbsp; <span class="xp-key xp-key-bar is-current" aria-hidden="true"></span> ongoing{% endif %}
+            {% if events %}&nbsp; <span class="xp-key-glyph" aria-hidden="true">◆</span> hackathon{% if award_count %} &nbsp;<span class="xp-key-glyph has-award" aria-hidden="true">★</span> won an award{% endif %}{% endif %}
+            {% if certifications %}&nbsp; <span class="xp-key-glyph is-cert" aria-hidden="true">●</span> certification{% endif %}
+          </p>
+        </section>
+
+        {% if positions %}
+        <section id="xp-work" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">💼</span> Work History</h2>
+          <div class="job-list">
+            {% for job in positions %}
+            <article id="xp-job-{{ loop.index }}" class="job">
+              <header class="job-head">
+                <div>
+                  <h3 class="job-title">{{ job.title }}</h3>
+                  <p class="job-org">{{ job.organization }}{% if job.location %} &middot; {{ job.location }}{% endif %}</p>
+                </div>
+                <div class="job-when">
+                  {% if job.type %}<span class="job-type">{{ job.type }}</span>{% endif %}
+                  <span>{{ job_dates(job) }}</span>
+                  <span class="job-length">{{ job_length(job) }}</span>
+                </div>
+              </header>
+              <div class="job-body">
+                {% if job.summary %}<p>{{ job.summary }}</p>{% endif %}
+                {% if job.highlights %}
+                <ul class="highlight-list">
+                  {% for highlight in job.highlights %}
+                  <li>{{ highlight }}</li>
+                  {% endfor %}
+                </ul>
+                {% endif %}
+                {% if job.technologies %}
+                <ul class="tech-chips" aria-label="Technologies used">
+                  {% for tech in job.technologies %}
+                  <li>{% if tech.logo %}<img src="{{ root }}{{ tech.logo }}" alt="" loading="lazy">{% endif %}{{ tech.name }}</li>
+                  {% endfor %}
+                </ul>
+                {% endif %}
+                {% set job_projects = (job.projects or []) | select("in", project_by_slug) | list %}
+                {% if job_projects %}
+                <p class="job-projects"><strong>Related projects:</strong>
+                  {% for slug in job_projects %}
+                  <a href="../projects/{{ slug }}/index.html"><span class="icon" aria-hidden="true">📁</span>{{ project_by_slug[slug].title }}</a>{% if not loop.last %}, {% endif %}
+                  {% endfor %}
+                </p>
+                {% endif %}
+              </div>
+            </article>
+            {% endfor %}
+          </div>
+        </section>
+        {% endif %}
+
+        {% if events %}
+        <section id="xp-events" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🏆</span> Hackathons</h2>
+          <p class="section-intro">Weekends spent building something from nothing, or helping others do it. Click a project to see what came out of it.</p>
+          <ul class="event-grid">
+            {% for event in events %}
+            {% set project = project_by_slug[event.project] if event.project in project_by_slug else none %}
+            <li id="xp-event-{{ loop.index }}" class="event-card{% if event.awards %} has-award{% endif %}">
+              {% if project %}
+              <a class="event-thumb" href="../projects/{{ event.project }}/index.html" title="View {{ project.title }}">
+                <img src="{{ root }}{{ project.image }}" alt="{{ project.title }} screenshot" loading="lazy">
+              </a>
+              {% elif event.image %}
+              <div class="event-thumb event-thumb-image">
+                <img src="{{ root }}{{ event.image }}" alt="{{ event.name }}" loading="lazy">
+              </div>
+              {% endif %}
+              <div class="event-body">
+                <h3 class="event-name">{{ event.name }}</h3>
+                <p class="event-meta">
+                  <span class="icon" aria-hidden="true">📅</span> {{ event.dates or month_label(event.date) }}
+                  {% if event.host or event.location %}<br><span class="icon" aria-hidden="true">📍</span> {{ [event.host, event.location] | select | join(", ") }}{% endif %}
+                </p>
+                {% if event.awards %}
+                <ul class="award-list" aria-label="Awards">
+                  {% for award in event.awards %}
+                  <li class="award"><span aria-hidden="true">🏆</span> {{ award }}</li>
+                  {% endfor %}
+                </ul>
+                {% endif %}
+                {% if event.summary %}<p>{{ event.summary }}</p>{% endif %}
+                {% if event.role or event.team or project %}
+                <dl class="course-facts">
+                  {% if project %}<div><dt>Project</dt><dd><a href="../projects/{{ event.project }}/index.html">{{ project.title }}</a></dd></div>{% endif %}
+                  {% if event.role %}<div><dt>Role</dt><dd>{{ event.role }}</dd></div>{% endif %}
+                  {% if event.team %}<div><dt>Team</dt><dd>{{ event.team }}</dd></div>{% endif %}
+                </dl>
+                {% endif %}
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        </section>
+        {% endif %}
+
+        {% if certifications %}
+        <section id="xp-certifications" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">📜</span> Certifications</h2>
+          <div class="cert-list">
+            {% for cert in certifications %}
+            <article id="xp-cert-{{ loop.index }}" class="cert">
+              <span class="cert-seal" aria-hidden="true">
+                {% if cert.logo %}<img src="{{ root }}{{ cert.logo }}" alt="">{% else %}📜{% endif %}
+              </span>
+              <div>
+                <h3 class="cert-name">{{ cert.name }}</h3>
+                <p class="cert-meta">{{ cert.issuer }} &middot; Earned {{ month_label(cert.date) }}{% if cert.expires %} &middot; Valid through {{ month_label(cert.expires) }}{% endif %}</p>
+                {% if cert.summary %}<p>{{ cert.summary }}</p>{% endif %}
+              </div>
+            </article>
+            {% endfor %}
+          </div>
+        </section>
+        {% endif %}
+
+        {% if tools %}
+        <section id="xp-toolbox" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🧰</span> Toolbox</h2>
+          <p class="section-intro">Everything I've used on the job, most-used first. Hover for the roles.</p>
+          <ul class="tech-grid toolbox-grid">
+            {% for tool in tools | sort(attribute="count", reverse=true) %}
+            <li title="{{ tool.roles | join(', ') }}">
+              {% if tool.logo %}<img src="{{ root }}{{ tool.logo }}" alt="" loading="lazy">{% else %}<span class="toolbox-glyph" aria-hidden="true">🔧</span>{% endif %}
+              <span>{{ tool.name }}</span>
+              <span class="toolbox-count">{{ tool.count }} role{{ "s" if tool.count > 1 }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </section>
+        {% endif %}
+      </main>
+    </div>
+    {% else %}
+    <main>
+      <section class="experience-intro box" aria-labelledby="experience-heading">
+        <h2 id="experience-heading" class="box-title"><span class="icon" aria-hidden="true">💼</span> Experience</h2>
+        <p class="empty-projects">No experience entries yet. Add an <code>experience</code> section to data.json to fill this page in.</p>
+      </section>
+    </main>
+    {% endif %}
+
+    <footer class="site-footer">
+      <nav class="site-nav" aria-label="Footer navigation">
+        <a href="../index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a> |
+        <a href="../projects/index.html"><span class="icon" aria-hidden="true">📁</span> Projects</a> |
+        <a href="../education/index.html"{% if current_page == "education" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">🎓</span> Education</a> |
+        <a href="../experience/index.html"{% if current_page == "experience" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">💼</span> Experience</a>
+      </nav>
+      <p class="retro-badge"><span class="icon" aria-hidden="true">⭐</span> Best viewed with any browser, preferably with JavaScript enabled.</p>
+      <p>&copy; {{ profile.last_updated }} {{ profile.name }}. All rights reserved.</p>
+    </footer>
+
+  </div>
+</body>
+</html>

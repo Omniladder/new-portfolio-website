@@ -1,0 +1,31 @@
+{#
+  Shared site header, included at the top of every page template.
+  Expects from the including template:
+    root         - relative prefix back to the dist/ root ("", "../", "../../")
+    current_page - "home", "projects", "education", or "experience"; marks the matching
+                   nav link as current and picks the header quote from quotes[current_page]
+                   (docs/arch/0028). The quote line is omitted if that key is unset (docs/arch/0035).
+  See docs/arch/0024.
+#}
+    <header class="site-header">
+      <div class="header-row">
+        <div class="header-identity">
+          <img class="computer-icon" src="{{ root }}assets/core-assets/icons/computer.svg" alt="" aria-hidden="true">
+          <div class="header-text">
+            <h1 class="site-name">{{ profile.name }}</h1>
+            <p class="site-role">{{ profile.role }}</p>
+            {% if quotes[current_page] %}
+            <p class="site-quote">&ldquo;{{ quotes[current_page] }}&rdquo;</p>
+            {% endif %}
+          </div>
+          <img class="floppy-icon" src="{{ root }}assets/core-assets/icons/floppy-disk.svg" alt="" aria-hidden="true">
+        </div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="true">Light Mode</button>
+      </div>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="{{ root }}index.html"{% if current_page == "home" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">🏠</span> Home</a> |
+        <a href="{{ root }}projects/index.html"{% if current_page == "projects" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">📁</span> Projects</a> |
+        <a href="{{ root }}education/index.html"{% if current_page == "education" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">🎓</span> Education</a> |
+        <a href="{{ root }}experience/index.html"{% if current_page == "experience" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">💼</span> Experience</a>
+      </nav>
+    </header>

@@ -3,9 +3,11 @@
 These tests drive a real browser against the generated site, so they're kept
 out of the default pytest run (see tests/conftest.py's collect_ignore) and
 run explicitly with ``pytest tests/playwright``, after a one-time
-``playwright install chromium``. See docs/arch/0019.
+``playwright install chromium``. The site is built from the real data.json
+only; if it's missing, the whole suite is skipped. See docs/arch/0019, 0033.
 """
 
+import json
 import socket
 import subprocess
 import sys
@@ -16,6 +18,7 @@ from pathlib import Path
 import pytest
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
+DATA_PATH = ROOT_DIR / "data.json"
 
 
 def _free_port() -> int:
@@ -53,18 +56,37 @@ def _wait_until_serving(url: str, timeout: float = 10.0) -> None:
 
 
 @pytest.fixture(scope="session")
-def site_url():
-    """Build the site from data.template.json and serve it over HTTP.
+def site_data():
+    """Load the real data.json the site is built from, read-only.
 
-    Builds with the tracked example data (not a developer's personal,
-    gitignored data.json) so the suite runs the same on every clone, per
-    docs/arch/0014's guidance on smoke-testing with --data.
+    Tests derive what they expect from this instead of hardcoding content,
+    so they pass for any fork's data.json. There is no data.template.json
+    fallback (docs/arch/0033): if data.json is missing, every test that
+    depends on this fixture is skipped.
+
+    Returns:
+        dict: The parsed contents of data.json.
+    """
+    if not DATA_PATH.exists():
+        pytest.skip("data.json not found; the e2e suite only runs against it")
+    return json.loads(DATA_PATH.read_text())
+
+
+@pytest.fixture(scope="session")
+def site_url(site_data):
+    """Build the site from data.json and serve it over HTTP.
+
+    generate.py only reads data.json, so building from it is safe
+    (docs/arch/0025).
+
+    Args:
+        site_data: Ensures data.json exists before building.
 
     Yields:
         str: Base URL of the running server, e.g. "http://127.0.0.1:51234".
     """
     subprocess.run(
-        [sys.executable, "generate.py", "--data", "data.template.json"],
+        [sys.executable, "generate.py"],
         cwd=ROOT_DIR,
         check=True,
         capture_output=True,

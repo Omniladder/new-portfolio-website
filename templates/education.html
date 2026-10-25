@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Education — {{ profile.name }}</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/core-assets/icons/computer.svg">
+  <link rel="stylesheet" href="../static/styles.css">
+  <script src="../static/theme-toggle.js"></script>
+</head>
+<body>
+  <div class="page education-page">
+
+    {% set root = "../" %}
+    {% set current_page = "education" %}
+    {% include "partials/header.html" %}
+
+    {% macro link_icon(type) -%}
+      {%- if type == "github" -%}
+      <span class="icon icon-github-mark" aria-hidden="true">{{ inline_svg('assets/core-assets/icons/github.svg') | safe }}</span>
+      {%- elif type == "download" -%}
+      <span class="icon" aria-hidden="true">💾</span>
+      {%- elif type == "linkedin" -%}
+      <span class="icon" aria-hidden="true">💼</span>
+      {%- else -%}
+      <span class="icon" aria-hidden="true">🌐</span>
+      {%- endif -%}
+    {%- endmacro %}
+
+    {# project_name -> project, so courses can link to the projects they produced. #}
+    {% set project_titles = {} %}
+    {% for p in projects %}{% set _ = project_titles.update({p.project_name: p.title}) %}{% endfor %}
+
+    {% for school in education or [] %}
+    {# Every id on the page is prefixed per school so several schools can share it. #}
+    {% set sid = "school-" ~ loop.index %}
+    {% set terms = school.terms or [] %}
+    {% set gallery = school.gallery or [] %}
+    {% set shots = ([{"image": school.image, "caption": school.image_caption or school.school}] if school.image else []) + gallery %}
+
+    {# Totals for the At a Glance box, computed from the transcript. #}
+    {% set stats = namespace(courses=0, credits=0, a=0, honors=0, course_projects=[]) %}
+    {% for term in terms %}
+      {% if term.honors %}{% set stats.honors = stats.honors + 1 %}{% endif %}
+      {% for course in term.courses %}
+        {% set stats.courses = stats.courses + 1 %}
+        {% set stats.credits = stats.credits + (course.credits or 0) %}
+        {% if (course.grade or "")[:1] == "A" %}{% set stats.a = stats.a + 1 %}{% endif %}
+        {% for slug in course.projects or [] %}
+          {% if slug in project_titles %}{% set stats.course_projects = stats.course_projects + [(course, slug)] %}{% endif %}
+        {% endfor %}
+      {% endfor %}
+    {% endfor %}
+    {# Chronological for the chart; terms are listed most recent first. #}
+    {% set gpa_terms = terms | selectattr("gpa", "defined") | list | reverse | list %}
+
+    <section class="project-hero education-hero">
+      <p class="education-kicker"><span class="icon" aria-hidden="true">🎓</span> {{ school.degree }}</p>
+      <h2 class="project-title">{{ school.school }}</h2>
+      {% if school.subtitle %}<p class="project-subtitle">{{ school.subtitle }}</p>{% endif %}
+      {% if school.dates or school.location %}
+      <p class="education-meta">
+        {% if school.dates %}<span><span class="icon" aria-hidden="true">📅</span> {{ school.dates }}</span>{% endif %}
+        {% if school.location %}<span><span class="icon" aria-hidden="true">📍</span> {{ school.location }}</span>{% endif %}
+      </p>
+      {% endif %}
+      {% if school.links %}
+      <ul class="project-actions" aria-label="{{ school.school }} links">
+        {% for link in school.links %}
+        <li>
+          <a class="retro-button" href="{{ root ~ link.url if link.type == 'download' else link.url }}"{% if link.type == "download" %} download{% endif %}>
+            {{ link_icon(link.type) }}{{ link.label }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </section>
+
+    <div class="layout project-layout education-layout">
+      <aside class="sidebar">
+        <div class="box on-this-page">
+          <h2 class="box-title">On This Page</h2>
+          <ul class="nav-list">
+            <li><a href="#{{ sid }}-overview"><span class="icon" aria-hidden="true">🏫</span> Overview</a></li>
+            {% if school.highlights %}
+            <li><a href="#{{ sid }}-honors"><span class="icon" aria-hidden="true">🏆</span> Honors</a></li>
+            {% endif %}
+            {% if gpa_terms %}
+            <li><a href="#{{ sid }}-gpa"><span class="icon" aria-hidden="true">📈</span> GPA by Term</a></li>
+            {% endif %}
+            {% if stats.course_projects %}
+            <li><a href="#{{ sid }}-course-projects"><span class="icon" aria-hidden="true">🧪</span> Course Projects</a></li>
+            {% endif %}
+            {% if terms %}
+            <li><a href="#{{ sid }}-transcript"><span class="icon" aria-hidden="true">📜</span> Transcript</a></li>
+            {% endif %}
+            {% if gallery %}
+            <li><a href="#{{ sid }}-gallery"><span class="icon" aria-hidden="true">🖼️</span> Gallery</a></li>
+            {% endif %}
+          </ul>
+        </div>
+
+        {% if school.facts %}
+        <div class="box">
+          <h2 class="box-title">Degree Facts</h2>
+          {% for fact in school.facts %}
+          <p><strong>{{ fact.label }}:</strong><br>{{ fact.value }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if stats.courses %}
+        <div class="box">
+          <h2 class="box-title">At a Glance</h2>
+          <dl class="glance-list">
+            <div><dt>Credits</dt><dd>{{ stats.credits | round | int }}</dd></div>
+            <div><dt>Courses</dt><dd>{{ stats.courses }}</dd></div>
+            <div><dt>Semesters</dt><dd>{{ terms | length }}</dd></div>
+            <div><dt>A grades</dt><dd>{{ stats.a }}</dd></div>
+            {% if stats.honors %}<div><dt>Term honors</dt><dd>{{ stats.honors }}</dd></div>{% endif %}
+          </dl>
+        </div>
+        {% endif %}
+      </aside>
+
+      <main class="content">
+        <section id="{{ sid }}-overview" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🏫</span> Overview</h2>
+          <div class="education-overview">
+            {% if school.image %}
+            <figure class="education-photo">
+              <a class="preview-frame" href="#{{ sid }}-shot-1" title="Click to enlarge">
+                <img src="{{ root }}{{ school.image }}" alt="{{ school.image_caption or school.school }}">
+              </a>
+              {% if school.image_caption %}<figcaption>{{ school.image_caption }}</figcaption>{% endif %}
+            </figure>
+            {% endif %}
+            <div class="education-summary">
+              {% if school.summary %}
+              {% for paragraph in school.summary.split("\n\n") %}
+              <p>{{ paragraph }}</p>
+              {% endfor %}
+              {% else %}
+              <p>{{ school.degree }}{% if school.subtitle %}, {{ school.subtitle }}{% endif %}.</p>
+              {% endif %}
+            </div>
+          </div>
+        </section>
+
+        {% if school.highlights %}
+        <section id="{{ sid }}-honors" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🏆</span> Honors &amp; Achievements</h2>
+          <ul class="highlight-list">
+            {% for highlight in school.highlights %}
+            <li>{{ highlight }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+        {% endif %}
+
+        {% if gpa_terms %}
+        <section id="{{ sid }}-gpa" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">📈</span> GPA by Term</h2>
+          {# One series, so no legend; each bar carries its value as text. Scale is 0–4.0. #}
+          <ol class="gpa-chart" aria-label="Term GPA on a 4.0 scale, oldest term first">
+            {% for term in gpa_terms %}
+            {% set gpa_label = "%.3f" | format(term.gpa) %}
+            <li title="{{ term.name }}: {{ gpa_label }} term GPA{% if term.honors %}, {{ term.honors }}{% endif %}">
+              <span class="gpa-term">{{ term.name }}</span>
+              <span class="gpa-track"><span class="gpa-bar" style="width: {{ (term.gpa / 4 * 100) | round(1) }}%"></span></span>
+              <span class="gpa-value">{{ gpa_label }}{% if term.honors %} <span class="gpa-honor" aria-label="{{ term.honors }}">★</span>{% endif %}</span>
+            </li>
+            {% endfor %}
+          </ol>
+          {% if stats.honors %}
+          <p class="gpa-note"><span class="gpa-honor" aria-hidden="true">★</span> = {{ (terms | selectattr("honors") | first).honors }}</p>
+          {% endif %}
+        </section>
+        {% endif %}
+
+        {% if stats.course_projects %}
+        <section id="{{ sid }}-course-projects" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🧪</span> Course Projects</h2>
+          <p class="section-intro">Classes that turned into something you can look at.</p>
+          <ul class="course-project-list">
+            {% for course, slug in stats.course_projects %}
+            <li>
+              <span class="course-code">{{ course.code }}</span>
+              <span class="course-project-course">{{ course.title }}</span>
+              <span aria-hidden="true">&rarr;</span>
+              <a href="../projects/{{ slug }}/index.html"><span class="icon" aria-hidden="true">📁</span>{{ project_titles[slug] }}</a>
+            </li>
+            {% endfor %}
+          </ul>
+        </section>
+        {% endif %}
+
+        {% if terms %}
+        <section id="{{ sid }}-transcript" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">📜</span> Transcript</h2>
+          <p class="section-intro">Click any course for its description, instructor, and credits.</p>
+          {% for term in terms %}
+          {% set term_credits = term.courses | map(attribute="credits") | select("number") | sum %}
+          <div class="term">
+            <h3 class="term-title">
+              <span>{{ term.name }}</span>
+              <span class="term-meta">
+                {% if term.gpa is defined %}GPA {{ "%.3f" | format(term.gpa) }}{% endif %}
+                {% if term_credits %} &middot; {{ term_credits | round | int }} credits{% endif %}
+                {% if term.honors %} &middot; <span class="term-honor">★ {{ term.honors }}</span>{% endif %}
+              </span>
+            </h3>
+            <div class="course-list">
+              {% for course in term.courses %}
+              <details class="course">
+                <summary>
+                  {% if course.grade %}<span class="grade grade-{{ course.grade[:1] | lower }}" title="Grade">{{ course.grade }}</span>{% endif %}
+                  <span class="course-code">{{ course.code }}</span>
+                  <span class="course-name">{{ course.title }}{% if course.projects %} <span class="icon" title="Has a related project" aria-label="Has a related project">📁</span>{% endif %}</span>
+                </summary>
+                <div class="course-body">
+                  {% if course.description %}<p>{{ course.description }}</p>{% endif %}
+                  <dl class="course-facts">
+                    {% if course.topic %}<div><dt>Topic</dt><dd>{{ course.topic }}</dd></div>{% endif %}
+                    {% if course.instructor %}<div><dt>Instructor</dt><dd>{{ course.instructor }}</dd></div>{% endif %}
+                    {% if course.credits is defined %}<div><dt>Credits</dt><dd>{{ course.credits }}</dd></div>{% endif %}
+                    {% for slug in course.projects or [] %}
+                    {% if slug in project_titles %}
+                    <div><dt>Project</dt><dd><a href="../projects/{{ slug }}/index.html">{{ project_titles[slug] }}</a></dd></div>
+                    {% endif %}
+                    {% endfor %}
+                  </dl>
+                </div>
+              </details>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </section>
+        {% endif %}
+
+        {% if gallery %}
+        <section id="{{ sid }}-gallery" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🖼️</span> Gallery</h2>
+          <ul class="gallery-strip">
+            {% set offset = 1 if school.image else 0 %}
+            {% for shot in gallery %}
+            <li>
+              <a href="#{{ sid }}-shot-{{ loop.index + offset }}" title="{{ shot.caption or 'Click to enlarge' }}">
+                <img src="{{ root }}{{ shot.image }}" alt="{{ shot.caption or school.school ~ ' photo ' ~ loop.index }}" loading="lazy">
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+          <p class="gallery-hint">Click a thumbnail to view it full size.</p>
+        </section>
+        {% endif %}
+      </main>
+    </div>
+
+    {% for shot in shots %}
+    {% set close_target = "#" ~ sid ~ ("-overview" if school.image and loop.first else "-gallery") %}
+    <div id="{{ sid }}-shot-{{ loop.index }}" class="lightbox" role="dialog" aria-label="{{ shot.caption or school.school }}">
+      <a class="lightbox-backdrop" href="{{ close_target }}" tabindex="-1" aria-hidden="true"></a>
+      <figure class="lightbox-window">
+        <div class="lightbox-titlebar">
+          <span>{{ shot.caption or school.school }} — {{ loop.index }} of {{ shots | length }}</span>
+          <a class="lightbox-close" href="{{ close_target }}" aria-label="Close">&times;</a>
+        </div>
+        <img src="{{ root }}{{ shot.image }}" alt="{{ shot.caption or school.school }}" loading="lazy">
+        {% if shots | length > 1 %}
+        <nav class="lightbox-nav" aria-label="Image navigation">
+          <span>{% if not loop.first %}<a href="#{{ sid }}-shot-{{ loop.index - 1 }}">&laquo; Prev</a>{% endif %}</span>
+          <span><a href="{{ close_target }}">Close</a></span>
+          <span>{% if not loop.last %}<a href="#{{ sid }}-shot-{{ loop.index + 1 }}">Next &raquo;</a>{% endif %}</span>
+        </nav>
+        {% endif %}
+      </figure>
+    </div>
+    {% endfor %}
+    {% else %}
+    <main>
+      <section class="education-intro box" aria-labelledby="education-heading">
+        <h2 id="education-heading" class="box-title"><span class="icon" aria-hidden="true">🎓</span> Education</h2>
+        <p class="empty-projects">No education entries yet. Add an <code>education</code> list to data.json to fill this page in.</p>
+      </section>
+    </main>
+    {% endfor %}
+
+    <footer class="site-footer">
+      <nav class="site-nav" aria-label="Footer navigation">
+        <a href="../index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a> |
+        <a href="../projects/index.html"><span class="icon" aria-hidden="true">📁</span> Projects</a> |
+        <a href="../education/index.html"{% if current_page == "education" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">🎓</span> Education</a> |
+        <a href="../experience/index.html"{% if current_page == "experience" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">💼</span> Experience</a>
+      </nav>
+      <p class="retro-badge"><span class="icon" aria-hidden="true">⭐</span> Best viewed with any browser, preferably with JavaScript enabled.</p>
+      <p>&copy; {{ profile.last_updated }} {{ profile.name }}. All rights reserved.</p>
+    </footer>
+
+  </div>
+</body>
+</html>

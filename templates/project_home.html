@@ -1,32 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Projects — {{ profile.name }}</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/core-assets/icons/computer.svg">
   <link rel="stylesheet" href="../static/styles.css">
   <script src="../static/theme-toggle.js"></script>
 </head>
 <body>
   <div class="page projects-page">
 
-    <header class="site-header">
-      <div class="header-row">
-        <div class="header-identity">
-          <img class="computer-icon" src="../assets/core-assets/icons/computer.svg" alt="" aria-hidden="true">
-          <div class="header-text">
-            <h1 class="site-name">{{ profile.name }}</h1>
-            <p class="site-role">{{ profile.role }}</p>
-            <p class="site-quote">&ldquo;{{ profile.quote }}&rdquo;</p>
-          </div>
-        </div>
-        <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false">Dark Mode</button>
-      </div>
-      <nav class="site-nav" aria-label="Primary navigation">
-        <a href="../index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a> |
-        <a href="./" aria-current="page"><span class="icon" aria-hidden="true">📁</span> Projects</a>
-      </nav>
-    </header>
+    {% set root = "../" %}
+    {% set current_page = "projects" %}
+    {% include "partials/header.html" %}
 
     <main>
       <section class="projects-intro box" aria-labelledby="projects-heading">
@@ -44,12 +31,12 @@
         <div class="featured-projects">
           {% for project in featured_projects %}
           <article class="featured-project-card">
-            <a class="featured-project-image" href="{{ project.project_name }}/">
+            <a class="featured-project-image" href="{{ project.project_name }}/index.html">
               <img src="../{{ project.image }}" alt="Screenshot of {{ project.title }}">
             </a>
             <div class="featured-project-copy">
               <p class="project-kicker">Featured project</p>
-              <h3><a href="{{ project.project_name }}/">{{ project.title }}</a></h3>
+              <h3><a href="{{ project.project_name }}/index.html">{{ project.title }}</a></h3>
               <p class="project-tagline">{{ project.tagline }}</p>
               <p>{{ project.description }}</p>
               {% if project.technologies %}
@@ -59,7 +46,7 @@
                 {% endfor %}
               </ul>
               {% endif %}
-              <a class="project-link" href="{{ project.project_name }}/">Explore {{ project.title }} <span aria-hidden="true">→</span></a>
+              <a class="project-link" href="{{ project.project_name }}/index.html">Explore {{ project.title }} <span aria-hidden="true">→</span></a>
             </div>
           </article>
           {% endfor %}
@@ -75,21 +62,25 @@
         <div class="project-catalog">
           {% for project in projects %}
           <article class="project-card">
-            <a class="project-card-image" href="{{ project.project_name }}/">
+            <a class="project-card-image" href="{{ project.project_name }}/index.html">
               <img src="../{{ project.image }}" alt="Screenshot of {{ project.title }}">
             </a>
             <div class="project-card-copy">
-              <h3><a href="{{ project.project_name }}/">{{ project.title }}</a></h3>
+              <h3><a href="{{ project.project_name }}/index.html">{{ project.title }}</a></h3>
               <p class="project-tagline">{{ project.tagline }}</p>
-              <p>{{ project.description }}</p>
               {% if project.technologies %}
+              {# Cards stay a fixed height: show the first few, and link the rest to the project page. #}
+              {% set catalog_tech_limit = 6 %}
               <ul class="project-technologies" aria-label="Technologies used in {{ project.title }}">
-                {% for tech in project.technologies %}
+                {% for tech in project.technologies[:catalog_tech_limit] %}
                 <li>{{ tech.name }}</li>
                 {% endfor %}
+                {% if project.technologies | length > catalog_tech_limit %}
+                <li class="project-technologies-more"><a href="{{ project.project_name }}/index.html">+{{ project.technologies | length - catalog_tech_limit }} more</a></li>
+                {% endif %}
               </ul>
               {% endif %}
-              <a class="project-link" href="{{ project.project_name }}/">View project <span aria-hidden="true">→</span></a>
+              <a class="project-link" href="{{ project.project_name }}/index.html">View project <span aria-hidden="true">→</span></a>
             </div>
           </article>
           {% else %}
@@ -102,7 +93,9 @@
     <footer class="site-footer">
       <nav class="site-nav" aria-label="Footer navigation">
         <a href="../index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a> |
-        <a href="./" aria-current="page"><span class="icon" aria-hidden="true">📁</span> Projects</a>
+        <a href="index.html" aria-current="page"><span class="icon" aria-hidden="true">📁</span> Projects</a> |
+        <a href="../education/index.html"><span class="icon" aria-hidden="true">🎓</span> Education</a> |
+        <a href="../experience/index.html"><span class="icon" aria-hidden="true">💼</span> Experience</a>
       </nav>
       <p class="retro-badge"><span class="icon" aria-hidden="true">⭐</span> Best viewed with any browser, preferably with JavaScript enabled.</p>
       <p>&copy; {{ profile.last_updated }} {{ profile.name }}. All rights reserved.</p>

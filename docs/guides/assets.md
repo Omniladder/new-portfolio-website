@@ -11,15 +11,33 @@ There's also a third folder, `assets/core-assets/`, which holds images and files
 
 `assets/` and `assets/download/` exist on a fresh clone but are empty apart from a `.gitkeep` placeholder. Leave that file in place: it's what keeps the empty folder in git. Everything else you put in these folders is gitignored, so your personal files never end up in the repo's history ([docs/arch/0013](../arch/0013-assets-gitignored-with-tracked-placeholders.md)). It also means git can't restore them, so keep your own copies.
 
+## Organizing your images
+
+Inside `assets/` you can use any folders you like. The build copies every image, at any depth, into the same place under `dist/assets/` ([docs/arch/0032](../arch/0032-assets-organized-in-subfolders.md)). This layout keeps things easy to find:
+
+```
+assets/
+  profile/                 your photo, personal logo
+  education/               campus photos for the education page
+  logos/                   technology logos, shared by every project and the skills table
+  projects/
+    flashcard-factory/     one folder per project, named after its project_name
+      main.png             the screenshot used as "image"
+      study-mode.png       extra "gallery" images
+  download/                files visitors download (copied as-is, see below)
+```
+
+Logos get one shared folder rather than a copy in each project, since the same logo (Python, Docker, ...) usually shows up in many projects. If you move a file, update its path in `data.json`.
+
 ## Referencing files from data.json
 
 The generator never scans these folders. A file only appears on your site if `data.json` points to it, using its path from the repo root:
 
 ```json
 {
-  "image": "assets/my-project.png",
+  "image": "assets/projects/my-project/main.png",
   "technologies": [
-    { "name": "Python", "logo": "assets/pythonLogo.png" }
+    { "name": "Python", "logo": "assets/logos/pythonLogo.png" }
   ],
   "links": [
     { "label": "Resume", "url": "assets/download/resume.pdf", "type": "download" }
@@ -42,4 +60,4 @@ See [data-json.md](data-json.md) for the full list of fields.
 
 ## Current state
 
-Files in `assets/download/` are copied into the built site as-is (`dist/assets/download/`), so download links work. The page templates don't display images yet. The generator also doesn't check that the files you reference actually exist. You can add your files and reference them in `data.json` now; they'll start showing up once that part of the build lands, and this guide will be updated.
+Images anywhere under `assets/` (except `download/` and `core-assets/`) are copied into `dist/assets/` at the same path, and files in `assets/download/` are copied as-is to `dist/assets/download/`. The generator doesn't check that the files you reference actually exist, so a wrong path shows up as a broken image on the page rather than a build error.

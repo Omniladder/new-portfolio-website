@@ -1,14 +1,20 @@
 {
+  "quotes": {
+    "home": "Example Home Quote Goes Here",
+    "projects": "Example Projects Quote Goes Here",
+    "education": "Example Education Quote Goes Here",
+    "experience": "Example Experience Quote Goes Here"
+  },
   "profile": {
     "name": "Example Person",
     "role": "Software Engineer",
     "tagline": "Example Tagline — Example Role @ Example Company",
-    "quote": "Example Quote Goes Here",
     "picture": "assets/example.png",
     "welcome": "Example welcome blurb introducing the site.",
     "about": "Example longer bio paragraph about who you are and what you do.",
     "location": "Example City, ST",
     "email": "example@example.com",
+    "phone": "(555) 555-5555",
     "last_updated": "Example Month Year",
     "skills": [
       {
@@ -34,11 +40,168 @@
       "project_name": "example_project",
       "title": "Example Project",
       "tagline": "Example Project Tagline",
-      "description": "Example Project Description",
+      "description": "Example Project Description.\n\nA second paragraph — separate paragraphs with a blank line.",
       "image": "assets/example.png",
+      "image_caption": "Example preview caption",
+      "gallery": [
+        {
+          "image": "assets/example.png",
+          "caption": "Example gallery caption"
+        }
+      ],
       "featured": true,
-      "technologies": [],
-      "links": []
+      "highlights": [
+        "Example highlight, e.g. an award or result"
+      ],
+      "facts": [
+        {
+          "label": "Year",
+          "value": "Example Year"
+        }
+      ],
+      "technologies": [
+        {
+          "name": "Example Technology",
+          "logo": "assets/example-logo.png",
+          "layer": "Example Layer",
+          "purpose": "Example purpose"
+        }
+      ],
+      "links": [
+        {
+          "label": "View source",
+          "url": "https://example.com/source",
+          "type": "github"
+        },
+        {
+          "label": "Visit website",
+          "url": "https://example.com",
+          "type": "website"
+        }
+      ]
     }
-  ]
+  ],
+  "education": [
+    {
+      "school": "Example University",
+      "degree": "Bachelor of Science",
+      "subtitle": "Example Major, Minor in Example Subject",
+      "location": "Example City, ST",
+      "dates": "Example Start – Example End",
+      "summary": "Example overview of your degree.\n\nSeparate paragraphs with a blank line.",
+      "image": "assets/example.png",
+      "image_caption": "Example campus photo",
+      "gallery": [
+        {
+          "image": "assets/example-screenshot.png",
+          "caption": "Example caption"
+        }
+      ],
+      "facts": [
+        {
+          "label": "GPA",
+          "value": "Example GPA"
+        }
+      ],
+      "highlights": [
+        "Example honor"
+      ],
+      "links": [
+        {
+          "label": "Transcript",
+          "url": "assets/download/example.pdf",
+          "type": "download"
+        }
+      ],
+      "terms": [
+        {
+          "name": "Example Term",
+          "gpa": 4.0,
+          "honors": "Example Honor",
+          "courses": [
+            {
+              "code": "EX 101",
+              "title": "Example Course",
+              "grade": "A",
+              "credits": 3,
+              "instructor": "Example Instructor",
+              "topic": "Example topic",
+              "description": "Example course description.",
+              "projects": [
+                "example-project"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "experience": {
+    "summary": "Example overview of your career.\n\nSeparate paragraphs with a blank line.",
+    "links": [
+      {
+        "label": "Resume",
+        "url": "assets/download/example.pdf",
+        "type": "download"
+      }
+    ],
+    "positions": [
+      {
+        "title": "Example Job Title",
+        "organization": "Example Company",
+        "location": "Example City, ST",
+        "type": "Full-time",
+        "start": "2025-01",
+        "summary": "Example description of the role. Leave out end for a current job.",
+        "highlights": [
+          "Example accomplishment"
+        ],
+        "technologies": [
+          {
+            "name": "Example Technology",
+            "logo": "assets/example.png"
+          },
+          {
+            "name": "Example Technology Without A Logo"
+          }
+        ],
+        "projects": [
+          "example-project"
+        ]
+      },
+      {
+        "title": "Example Past Job",
+        "organization": "Example Company",
+        "type": "Internship",
+        "start": "2024-06",
+        "end": "2024-08"
+      }
+    ],
+    "events": [
+      {
+        "name": "Example Hackathon 2024",
+        "host": "Example University",
+        "location": "Example City, ST",
+        "date": "2024-09-28",
+        "dates": "September 28–29, 2024",
+        "role": "Example role",
+        "team": "4 developers",
+        "awards": [
+          "Example Award"
+        ],
+        "summary": "Example description of what you built.",
+        "project": "example-project"
+      }
+    ],
+    "certifications": [
+      {
+        "name": "Example Certification",
+        "issuer": "Example Issuer",
+        "date": "2025-07",
+        "expires": "2028-07",
+        "logo": "assets/example.png",
+        "summary": "Example description."
+      }
+    ]
+  }
 }

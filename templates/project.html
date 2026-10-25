@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ project.title }} — {{ profile.name }}</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/core-assets/icons/computer.svg">
+  <link rel="stylesheet" href="../../static/styles.css">
+  <script src="../../static/theme-toggle.js"></script>
+</head>
+<body>
+  <div class="page project-page">
+
+    {% set root = "../../" %}
+    {% set current_page = "projects" %}
+    {% include "partials/header.html" %}
+
+    {#
+      Every image the lightbox can enlarge: the main preview first, then the
+      gallery. The lightbox is pure CSS (:target), so no per-template JS is
+      needed (docs/arch/0002).
+    #}
+    {% set gallery = project.gallery or [] %}
+    {% set shots = [{"image": project.image, "caption": project.image_caption or project.title ~ " preview"}] + gallery %}
+
+    {# Previous/next project, for the navigation strip at the bottom. #}
+    {% set nav = namespace(prev=none, next=none) %}
+    {% for p in projects %}
+      {% if p.project_name == project.project_name %}
+        {% set nav.prev = loop.previtem %}
+        {% set nav.next = loop.nextitem %}
+      {% endif %}
+    {% endfor %}
+
+    {#
+      Featured technologies show as the large logo grid; the rest go in the
+      table underneath (or a plain grid if none has a layer/purpose).
+    #}
+    {% set featured_techs = project.technologies | selectattr('featured') | list %}
+    {% set other_techs = project.technologies | rejectattr('featured') | list %}
+    {% set tech_has_layer = other_techs | selectattr('layer') | list | length > 0 %}
+    {% set tech_has_purpose = other_techs | selectattr('purpose') | list | length > 0 %}
+
+    {% macro link_icon(type) -%}
+      {%- if type == "github" -%}
+      <span class="icon icon-github-mark" aria-hidden="true">{{ inline_svg('assets/core-assets/icons/github.svg') | safe }}</span>
+      {%- elif type == "source" -%}
+      <span class="icon" aria-hidden="true">📜</span>
+      {%- elif type == "download" -%}
+      <span class="icon" aria-hidden="true">💾</span>
+      {%- elif type == "linkedin" -%}
+      <span class="icon" aria-hidden="true">💼</span>
+      {%- else -%}
+      <span class="icon" aria-hidden="true">🌐</span>
+      {%- endif -%}
+    {%- endmacro %}
+
+    <section class="project-hero">
+      <p class="back-link"><a href="../index.html">&laquo; Back to Project Directory</a></p>
+      <h2 class="project-title">{{ project.title }}</h2>
+      <p class="project-subtitle">{{ project.tagline }}</p>
+      {% if project.links %}
+      <ul class="project-actions" aria-label="Project links">
+        {% for link in project.links %}
+        <li>
+          <a class="retro-button" href="{{ root ~ link.url if link.type == 'download' else link.url }}"{% if link.type == "download" %} download{% endif %}>
+            {{ link_icon(link.type) }}{{ link.label }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </section>
+
+    <div class="layout project-layout">
+      <aside class="sidebar">
+        <div class="box on-this-page">
+          <h2 class="box-title">On This Page</h2>
+          <ul class="nav-list">
+            <li><a href="#background"><span class="icon" aria-hidden="true">📝</span> Background</a></li>
+            <li><a href="#preview"><span class="icon" aria-hidden="true">🖥️</span> Preview</a></li>
+            {% if project.technologies %}
+            <li><a href="#technologies"><span class="icon" aria-hidden="true">⚙️</span> Technologies</a></li>
+            {% endif %}
+            {% if gallery %}
+            <li><a href="#gallery"><span class="icon" aria-hidden="true">🖼️</span> Gallery</a></li>
+            {% endif %}
+            {% if project.highlights %}
+            <li><a href="#highlights"><span class="icon" aria-hidden="true">🏆</span> Highlights</a></li>
+            {% endif %}
+          </ul>
+        </div>
+
+        {% if project.facts %}
+        <div class="box">
+          <h2 class="box-title">Project Facts</h2>
+          {% for fact in project.facts %}
+          <p><strong>{{ fact.label }}:</strong><br>{{ fact.value }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="box">
+          <h2 class="box-title">All Projects</h2>
+          <ul class="nav-list project-nav-list">
+            {% for p in projects %}
+            <li>
+              <span class="icon" aria-hidden="true">{{ "📂" if p.project_name == project.project_name else "📁" }}</span>
+              {% if p.project_name == project.project_name %}
+              <strong aria-current="page">{{ p.title }}</strong>
+              {% else %}
+              <a href="../{{ p.project_name }}/index.html">{{ p.title }}</a>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section id="background" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">📝</span> Background</h2>
+          {% for paragraph in project.description.split("\n\n") %}
+          <p>{{ paragraph }}</p>
+          {% endfor %}
+        </section>
+
+        <section id="preview" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🖥️</span> Preview</h2>
+          <figure class="project-preview">
+            <a class="preview-frame" href="#shot-1" title="Click to enlarge">
+              <img src="{{ root }}{{ project.image }}" alt="Screenshot of {{ project.title }}">
+            </a>
+            <figcaption>{{ shots[0].caption }}</figcaption>
+          </figure>
+        </section>
+
+        {% if project.technologies %}
+        <section id="technologies" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">⚙️</span> Technologies</h2>
+          {% if featured_techs %}
+          <ul class="tech-grid tech-grid-featured">
+            {% for tech in featured_techs %}
+            <li{% if tech.purpose %} title="{{ tech.purpose }}"{% endif %}>
+              <img src="{{ root }}{{ tech.logo }}" alt="">
+              <span>{{ tech.name }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          {% if other_techs %}
+          {# Behind the featured grid, the rest collapse into a native <details> so long lists stay short without JS. #}
+          {% if featured_techs %}
+          <details class="tech-more">
+          <summary class="tech-subheading">Also Used ({{ other_techs | length }})</summary>
+          {% endif %}
+          {% if tech_has_layer or tech_has_purpose %}
+          <div class="table-scroll">
+            <table class="skills-table tech-table">
+              <thead>
+                <tr>
+                  {% if tech_has_layer %}<th>Layer</th>{% endif %}
+                  <th>Technology</th>
+                  {% if tech_has_purpose %}<th>Purpose</th>{% endif %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for tech in other_techs %}
+                <tr>
+                  {% if tech_has_layer %}<td>{{ tech.layer }}</td>{% endif %}
+                  <td><span class="tech-badge"><img src="{{ root }}{{ tech.logo }}" alt="" class="tech-logo">{{ tech.name }}</span></td>
+                  {% if tech_has_purpose %}<td>{{ tech.purpose }}</td>{% endif %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <ul class="tech-grid">
+            {% for tech in other_techs %}
+            <li>
+              <img src="{{ root }}{{ tech.logo }}" alt="">
+              <span>{{ tech.name }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          {% if featured_techs %}
+          </details>
+          {% endif %}
+          {% endif %}
+        </section>
+        {% endif %}
+
+        {% if gallery %}
+        <section id="gallery" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🖼️</span> Gallery</h2>
+          <ul class="gallery-strip">
+            {% for shot in gallery %}
+            <li>
+              <a href="#shot-{{ loop.index + 1 }}" title="{{ shot.caption or 'Click to enlarge' }}">
+                <img src="{{ root }}{{ shot.image }}" alt="{{ shot.caption or project.title ~ ' screenshot ' ~ loop.index }}" loading="lazy">
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+          <p class="gallery-hint">Click a thumbnail to view it full size.</p>
+        </section>
+        {% endif %}
+
+        {% if project.highlights %}
+        <section id="highlights" class="box">
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🏆</span> Highlights</h2>
+          {# The first few always show; any beyond that collapse into a native <details>, like Also Used. #}
+          {% set highlights_shown = 3 %}
+          <ul class="highlight-list">
+            {% for highlight in project.highlights[:highlights_shown] %}
+            <li>{{ highlight }}</li>
+            {% endfor %}
+          </ul>
+          {% if project.highlights | length > highlights_shown %}
+          <details class="highlights-more">
+            <summary>More highlights ({{ project.highlights | length - highlights_shown }})</summary>
+            <ul class="highlight-list">
+              {% for highlight in project.highlights[highlights_shown:] %}
+              <li>{{ highlight }}</li>
+              {% endfor %}
+            </ul>
+          </details>
+          {% endif %}
+        </section>
+        {% endif %}
+
+        <nav class="project-pager" aria-label="More projects">
+          <span>{% if nav.prev %}<a href="../{{ nav.prev.project_name }}/index.html" rel="prev">&laquo; {{ nav.prev.title }}</a>{% endif %}</span>
+          <span><a href="../index.html">Back to all projects</a></span>
+          <span>{% if nav.next %}<a href="../{{ nav.next.project_name }}/index.html" rel="next">{{ nav.next.title }} &raquo;</a>{% endif %}</span>
+        </nav>
+      </main>
+    </div>
+
+    {% for shot in shots %}
+    {% set close_target = "#preview" if loop.first else "#gallery" %}
+    <div id="shot-{{ loop.index }}" class="lightbox" role="dialog" aria-label="{{ shot.caption or project.title }}">
+      <a class="lightbox-backdrop" href="{{ close_target }}" tabindex="-1" aria-hidden="true"></a>
+      <figure class="lightbox-window">
+        <div class="lightbox-titlebar">
+          <span>{{ shot.caption or project.title }} — {{ loop.index }} of {{ shots | length }}</span>
+          <a class="lightbox-close" href="{{ close_target }}" aria-label="Close">&times;</a>
+        </div>
+        <img src="{{ root }}{{ shot.image }}" alt="{{ shot.caption or project.title }}" loading="lazy">
+        {% if shots | length > 1 %}
+        <nav class="lightbox-nav" aria-label="Image navigation">
+          <span>{% if not loop.first %}<a href="#shot-{{ loop.index - 1 }}">&laquo; Prev</a>{% endif %}</span>
+          <span><a href="{{ close_target }}">Close</a></span>
+          <span>{% if not loop.last %}<a href="#shot-{{ loop.index + 1 }}">Next &raquo;</a>{% endif %}</span>
+        </nav>
+        {% endif %}
+      </figure>
+    </div>
+    {% endfor %}
+
+    <footer class="site-footer">
+      <nav class="site-nav" aria-label="Footer navigation">
+        <a href="../../index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a> |
+        <a href="../index.html"><span class="icon" aria-hidden="true">📁</span> Projects</a> |
+        <a href="../../education/index.html"><span class="icon" aria-hidden="true">🎓</span> Education</a> |
+        <a href="../../experience/index.html"><span class="icon" aria-hidden="true">💼</span> Experience</a>
+      </nav>
+      <p class="retro-badge"><span class="icon" aria-hidden="true">⭐</span> Best viewed with any browser, preferably with JavaScript enabled.</p>
+      <p>&copy; {{ profile.last_updated }} {{ profile.name }}. All rights reserved.</p>
+    </footer>
+
+  </div>
+</body>
+</html>

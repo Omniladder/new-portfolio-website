@@ -1,27 +1,14 @@
 /* ---------------------------------------------------------------------- */
 /* Theme variables — see docs/arch/0018 for the light/dark decision.      */
-/* Light is the default; [data-theme="dark"] overrides below.            */
+/* Dark is the default (docs/arch/0026); [data-theme="light"] overrides. */
 /* ---------------------------------------------------------------------- */
 
-:root,
-[data-theme="light"] {
-  --bg: #ffffff;
-  --fg: #000000;
-  --border: #000000;
-  --header-bg: #ccccff;
-  --header-fg: #000000;
-  --box-bg: #ffffff;
-  --sidebar-bg: #eeeeff;
-  --link: #0000ee;
-  --link-visited: #551a8b;
-  --name-color: #000000;
-  --role-color: #0000cc;
-  --quote-color: #333333;
-  --toggle-bg: #ddddff;
+:root {
   --font-heading: Georgia, "Times New Roman", serif;
   --font-body: Verdana, Arial, Helvetica, sans-serif;
 }
 
+:root,
 [data-theme="dark"] {
   --bg: #000000;
   --fg: #d8d8d8;
@@ -36,6 +23,22 @@
   --role-color: #ff3333;
   --quote-color: #00ffff;
   --toggle-bg: #000033;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --fg: #000000;
+  --border: #000000;
+  --header-bg: #ccccff;
+  --header-fg: #000000;
+  --box-bg: #ffffff;
+  --sidebar-bg: #eeeeff;
+  --link: #0000ee;
+  --link-visited: #551a8b;
+  --name-color: #000000;
+  --role-color: #0000cc;
+  --quote-color: #333333;
+  --toggle-bg: #ddddff;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -56,7 +59,7 @@ body {
   line-height: 1.5;
 }
 
-[data-theme="dark"] body {
+:root:not([data-theme="light"]) body {
   background-image: url("../assets/core-assets/stars-tile.svg");
   background-repeat: repeat;
   background-size: 180px 180px;
@@ -68,7 +71,7 @@ body {
     opacity: 1;
   }
   to {
-    opacity: 0.7;
+    opacity: 0.9;
   }
 }
 
@@ -179,7 +182,9 @@ a:hover {
   color: var(--role-color);
 }
 
+/* Long quotes wrap instead of widening the header's auto-sized column. */
 .site-quote {
+  max-width: 45ch;
   margin: 0.1rem 0 0;
   font-size: 0.9rem;
   color: var(--quote-color);
@@ -375,6 +380,7 @@ a:hover {
 .featured-project-image img,
 .project-card-image img {
   display: block;
+  background-color: var(--bg);
   height: auto;
   width: 100%;
 }
@@ -416,6 +422,15 @@ a:hover {
   border: 1px solid var(--border);
   font-size: 0.78rem;
   padding: 0.1rem 0.4rem;
+}
+
+.project-technologies .project-technologies-more {
+  border-style: dashed;
+}
+
+.project-technologies-more a {
+  color: var(--link);
+  text-decoration: underline;
 }
 
 .project-link {
@@ -469,6 +484,1018 @@ a:hover {
   border: 1px dashed var(--border);
   margin: 0;
   padding: 1rem;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Project page                                                            */
+/* ---------------------------------------------------------------------- */
+
+.project-hero {
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  text-align: center;
+}
+
+.back-link {
+  margin: 0;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.project-title {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-heading);
+  font-size: 2.6rem;
+  line-height: 1.1;
+  color: var(--name-color);
+}
+
+.project-subtitle {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--quote-color);
+}
+
+.project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+/* Beveled "Windows 95" push button: light top/left edge, dark bottom/right,
+   flipped while pressed. */
+.retro-button,
+.retro-button:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.35rem 0.9rem;
+  border: 2px outset var(--border);
+  background-color: var(--header-bg);
+  color: var(--header-fg);
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.retro-button:hover {
+  filter: brightness(1.2);
+  text-decoration: underline;
+}
+
+.retro-button:active {
+  border-style: inset;
+}
+
+.project-layout .sidebar .box > p {
+  margin: 0.5rem 0;
+  padding-bottom: 0;
+}
+
+.project-layout .sidebar .box > p:last-child {
+  padding-bottom: 0.5rem;
+}
+
+.project-nav-list strong {
+  color: var(--name-color);
+}
+
+.box > .highlight-list {
+  list-style: none;
+  margin: 0.5rem 0;
+  padding-left: 1rem;
+}
+
+.highlight-list li {
+  margin-bottom: 0.35rem;
+  padding-left: 1.5em;
+  text-indent: -1.5em;
+}
+
+.highlight-list li::before {
+  content: "\2605";
+  display: inline-block;
+  width: 1.5em;
+  text-indent: 0;
+  color: var(--name-color);
+}
+
+.project-preview {
+  margin: 0;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  text-align: center;
+}
+
+.preview-frame,
+.gallery-strip a {
+  display: inline-block;
+  border: 3px ridge var(--border);
+  background-color: var(--bg);
+  line-height: 0;
+  cursor: zoom-in;
+}
+
+.preview-frame img {
+  display: block;
+  max-width: 100%;
+  max-height: 480px;
+  height: auto;
+}
+
+.project-preview figcaption {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.tech-table td:not(:last-child) {
+  white-space: nowrap;
+}
+
+.tech-table .tech-logo {
+  width: 22px;
+  height: 22px;
+}
+
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0.75rem 0;
+}
+
+.tech-grid li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--border);
+  background-color: var(--sidebar-bg);
+  padding: 0.6rem 0.4rem;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.tech-grid img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.tech-subheading {
+  margin: 0.75rem 0 0;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.tech-more,
+.highlights-more {
+  padding-bottom: 0.75rem;
+}
+
+/* .highlights-more already gets the box's 0.75rem side padding, so these
+   offsets line its stars up with the always-visible list above it. */
+.box > .highlight-list:has(+ .highlights-more) {
+  padding-bottom: 0.25rem;
+}
+
+.highlights-more > .highlight-list {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding-left: 0.25rem;
+}
+
+.highlights-more summary {
+  margin-left: 0.25rem;
+}
+
+.tech-more summary,
+.highlights-more summary {
+  cursor: pointer;
+  color: var(--link);
+  text-decoration: underline;
+}
+
+.gallery-strip {
+  display: flex;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0.75rem 0 0;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.gallery-strip li {
+  flex: 0 0 auto;
+}
+
+.gallery-strip img {
+  display: block;
+  width: 160px;
+  height: 100px;
+  object-fit: cover;
+}
+
+.gallery-strip a:hover {
+  border-color: var(--link);
+}
+
+.box > .gallery-hint {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.project-pager {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  border-top: 2px solid var(--border);
+  padding-top: 0.75rem;
+}
+
+.project-pager span:last-child {
+  text-align: right;
+}
+
+/* Lightbox: pure CSS via :target, so it works with JS off and from file://.
+   Each enlarged image is a hidden overlay that shows when the URL hash
+   matches its id; "close" links point back at the section they came from. */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.lightbox:target {
+  display: flex;
+}
+
+.lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  cursor: zoom-out;
+}
+
+.lightbox-window {
+  position: relative;
+  margin: 0;
+  max-width: min(1000px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 2px outset var(--border);
+  background-color: var(--box-bg);
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.6);
+}
+
+.lightbox-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0.25rem 0.25rem 0.6rem;
+  background: linear-gradient(to right, #000080, #1084d0);
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.lightbox-close,
+.lightbox-close:visited {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px outset #dddddd;
+  background-color: #c0c0c0;
+  color: #000000;
+  font-weight: bold;
+  line-height: 1.1rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.lightbox-window img {
+  display: block;
+  min-height: 0;
+  max-width: 100%;
+  max-height: calc(100vh - 8rem);
+  margin: 0 auto;
+  object-fit: contain;
+  background-color: var(--bg);
+}
+
+.lightbox-nav {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.lightbox-nav span:last-child {
+  text-align: right;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Education page                                                          */
+/* Reuses the project page's hero, sidebar layout, boxes, and lightbox;    */
+/* only the transcript, GPA chart, and overview need their own rules.     */
+/* ---------------------------------------------------------------------- */
+
+.education-page,
+.experience-page {
+  max-width: 1100px;
+}
+
+.education-kicker,
+.experience-kicker {
+  margin: 0;
+  color: var(--role-color);
+  font-size: 0.85rem;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.education-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.5rem;
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+}
+
+.education-overview {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding-top: 0.75rem;
+  padding-bottom: 0.25rem;
+}
+
+.education-photo {
+  flex: 0 0 42%;
+  margin: 0;
+  text-align: center;
+}
+
+.education-photo .preview-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.education-photo figcaption {
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.education-summary {
+  flex: 1;
+  min-width: 0;
+}
+
+.education-summary p {
+  margin: 0 0 0.75rem;
+}
+
+.box > .section-intro {
+  margin: 0.6rem 0 0;
+  padding-bottom: 0;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.glance-list {
+  margin: 0.5rem 0;
+  padding-bottom: 0.25rem;
+}
+
+.glance-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-bottom: 1px dotted var(--border);
+  padding: 0.2rem 0;
+}
+
+.glance-list div:last-child {
+  border-bottom: none;
+}
+
+.glance-list dt {
+  font-weight: bold;
+}
+
+.glance-list dd {
+  margin: 0;
+  color: var(--name-color);
+  font-family: var(--font-heading);
+  font-weight: bold;
+}
+
+/* GPA by term: one horizontal bar per term on a fixed 0–4.0 scale. Each
+   row prints its value, so color never carries the number on its own. */
+.gpa-chart {
+  list-style: none;
+  margin: 0.75rem 0;
+  padding-bottom: 0.25rem;
+}
+
+.gpa-chart li {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr 4.5rem;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.15rem 0;
+}
+
+.gpa-chart li:hover .gpa-bar {
+  filter: brightness(1.25);
+}
+
+.gpa-term {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.gpa-track {
+  display: block;
+  height: 1rem;
+  border: 1px solid var(--border);
+  border-left-width: 2px;
+  background-color: var(--sidebar-bg);
+}
+
+.gpa-bar {
+  display: block;
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+  background-color: var(--link);
+}
+
+.gpa-value {
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.gpa-honor,
+.term-honor {
+  color: var(--name-color);
+}
+
+.box > .gpa-note {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.box > .course-project-list {
+  list-style: square;
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.course-project-list li {
+  margin-bottom: 0.35rem;
+}
+
+.course-project-list .icon {
+  margin-right: 0.3em;
+}
+
+.course-project-course {
+  font-style: italic;
+}
+
+.course-code {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* Transcript: a titled block per term, each course a native <details>
+   row (no JS, docs/arch/0002). */
+.term {
+  margin: 0.9rem 0;
+}
+
+.term-title {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  margin: 0 0 0.4rem;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0.2rem;
+  color: var(--header-fg);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+}
+
+.term-meta {
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: normal;
+}
+
+.course-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 0.4rem;
+  align-items: start;
+}
+
+.course {
+  border: 1px solid var(--border);
+  background-color: var(--sidebar-bg);
+}
+
+.course[open] {
+  border-style: outset;
+  border-width: 2px;
+}
+
+.course summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.course summary::-webkit-details-marker {
+  display: none;
+}
+
+.course summary::after {
+  content: "\25B8";
+  margin-left: auto;
+  padding-left: 0.5rem;
+  color: var(--link);
+}
+
+.course[open] summary::after {
+  content: "\25BE";
+}
+
+.course summary:hover .course-name {
+  text-decoration: underline;
+}
+
+.course-name {
+  min-width: 0;
+}
+
+.grade {
+  flex-shrink: 0;
+  width: 1.9rem;
+  border: 2px outset var(--border);
+  background-color: var(--header-bg);
+  color: var(--fg);
+  font-family: var(--font-heading);
+  font-weight: bold;
+  text-align: center;
+}
+
+.grade-a {
+  color: var(--name-color);
+}
+
+.grade-p {
+  font-style: italic;
+}
+
+.course-body {
+  border-top: 1px dashed var(--border);
+  padding: 0.5rem 0.6rem;
+  font-size: 0.88rem;
+}
+
+.course-body p {
+  margin: 0 0 0.5rem;
+}
+
+.course-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 0;
+}
+
+.course-facts dt {
+  display: inline;
+  font-weight: bold;
+}
+
+.course-facts dt::after {
+  content: ":";
+}
+
+.course-facts dd {
+  display: inline;
+  margin: 0 0 0 0.3em;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Experience page                                                         */
+/* Reuses the project page's hero and sidebar layout and the education    */
+/* page's glance list; adds the career timeline, job, hackathon, and      */
+/* certification cards. See docs/arch/0037.                               */
+/* ---------------------------------------------------------------------- */
+
+/* Timeline: a Gantt-style row per job plus marker rows for hackathons and
+   certifications, on a shared axis of whole years. --xp-years (set inline)
+   spaces the yearly gridlines drawn by each track's background. */
+.xp-timeline {
+  margin: 0.75rem 0 0.25rem;
+}
+
+.xp-row {
+  display: grid;
+  grid-template-columns: 13rem 1fr;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.15rem 0;
+}
+
+.xp-row-label {
+  overflow: hidden;
+  font-size: 0.85rem;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.xp-track {
+  position: relative;
+  display: block;
+  height: 1.1rem;
+  border: 1px solid var(--border);
+  border-left-width: 2px;
+  background-color: var(--sidebar-bg);
+  background-image: linear-gradient(to right, var(--border) 1px, transparent 1px);
+  background-size: calc(100% / var(--xp-years, 1)) 100%;
+}
+
+.xp-bar {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  min-width: 4px;
+  border-radius: 0 4px 4px 0;
+  background-color: var(--link);
+}
+
+.xp-bar:hover,
+.xp-marker:hover {
+  filter: brightness(1.25);
+}
+
+/* Ongoing jobs get diagonal stripes, so "still going" isn't color-only. */
+.xp-bar.is-current,
+.xp-key-bar.is-current {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 4px,
+    rgba(0, 0, 0, 0.35) 4px 7px
+  );
+}
+
+.xp-marker,
+.xp-marker:visited {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--link);
+  font-size: 0.85rem;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.xp-marker.has-award,
+.xp-key-glyph.has-award {
+  color: var(--name-color);
+}
+
+.xp-marker.has-award {
+  font-size: 1.1rem;
+}
+
+.xp-marker.is-cert,
+.xp-key-glyph.is-cert {
+  color: var(--role-color);
+}
+
+.xp-years {
+  display: flex;
+}
+
+.xp-years span {
+  flex: 1;
+  border-left: 1px solid var(--border);
+  padding-left: 0.3rem;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.xp-key {
+  display: inline-block;
+  width: 1.4rem;
+  height: 0.7rem;
+  vertical-align: middle;
+}
+
+.xp-key-bar {
+  border-radius: 0 3px 3px 0;
+  background-color: var(--link);
+}
+
+.xp-key-glyph {
+  color: var(--link);
+}
+
+/* Work history: one bordered card per job. The wrapper takes the box's
+   side padding so the cards don't double it. */
+.box > .job-list {
+  padding-bottom: 0.25rem;
+}
+
+.job {
+  margin: 0.75rem 0;
+  border: 1px solid var(--border);
+  background-color: var(--sidebar-bg);
+}
+
+.job:target,
+.event-card:target,
+.cert:target {
+  outline: 2px dashed var(--link);
+  outline-offset: 2px;
+}
+
+.job-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.25rem 1rem;
+  border-bottom: 2px solid var(--border);
+  padding: 0.5rem 0.75rem;
+}
+
+.job-title {
+  margin: 0;
+  color: var(--name-color);
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+}
+
+.job-org {
+  margin: 0.1rem 0 0;
+  color: var(--quote-color);
+  font-family: var(--font-heading);
+  font-style: italic;
+}
+
+.job-when {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  font-size: 0.85rem;
+}
+
+.job-type {
+  border: 2px outset var(--border);
+  background-color: var(--header-bg);
+  color: var(--header-fg);
+  padding: 0 0.4rem;
+  font-size: 0.7rem;
+  font-weight: bold;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.job-length {
+  opacity: 0.8;
+}
+
+.job-body {
+  padding: 0.5rem 0.75rem;
+}
+
+.job-body > p {
+  margin: 0 0 0.5rem;
+}
+
+.job-body .highlight-list {
+  list-style: none;
+  margin: 0.5rem 0;
+  padding-left: 0.25rem;
+}
+
+.tech-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0.6rem 0 0.25rem;
+  padding: 0;
+}
+
+.tech-chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--border);
+  background-color: var(--box-bg);
+  padding: 0.1rem 0.45rem;
+  font-size: 0.8rem;
+}
+
+.tech-chips img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.job-body > .job-projects {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+}
+
+.job-projects .icon {
+  margin-right: 0.25em;
+}
+
+/* Hackathons: a card per event, topped with its project's screenshot. */
+.box > .event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0.75rem 0;
+  padding-bottom: 0.25rem;
+}
+
+.event-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  background-color: var(--sidebar-bg);
+}
+
+.event-card.has-award {
+  border: 3px ridge var(--name-color);
+}
+
+.event-thumb {
+  display: block;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--bg);
+  line-height: 0;
+}
+
+.event-thumb img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+/* Event's own image (usually a logo): show it whole rather than cropped. */
+.event-thumb-image img {
+  object-fit: contain;
+  padding: 0.5rem;
+}
+
+a.event-thumb:hover img {
+  filter: brightness(1.15);
+}
+
+.event-body {
+  flex: 1;
+  padding: 0.5rem 0.65rem 0.6rem;
+  font-size: 0.88rem;
+}
+
+.event-body p {
+  margin: 0 0 0.5rem;
+}
+
+.event-name {
+  margin: 0;
+  color: var(--name-color);
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+}
+
+.event-body > .event-meta {
+  margin: 0.15rem 0 0.5rem;
+  font-size: 0.8rem;
+}
+
+.award-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+}
+
+.award {
+  border: 2px outset var(--border);
+  background-color: var(--header-bg);
+  color: var(--header-fg);
+  padding: 0.05rem 0.4rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Certifications: a framed "diploma" row with a round seal. The seal stays
+   white in both themes so issuer logos keep their own colors. */
+.box > .cert-list {
+  padding-bottom: 0.25rem;
+}
+
+.cert {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin: 0.75rem 0;
+  border: 4px double var(--border);
+  background-color: var(--sidebar-bg);
+  padding: 0.6rem 0.9rem;
+}
+
+.cert-seal {
+  display: grid;
+  flex: 0 0 68px;
+  place-items: center;
+  height: 68px;
+  border: 3px ridge var(--name-color);
+  border-radius: 50%;
+  background-color: #ffffff;
+  font-size: 2rem;
+}
+
+.cert-seal img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.cert-name {
+  margin: 0;
+  color: var(--name-color);
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+}
+
+.cert p {
+  margin: 0.2rem 0 0;
+  font-size: 0.88rem;
+}
+
+.cert .cert-meta {
+  font-style: italic;
+}
+
+.toolbox-glyph {
+  font-size: 2rem;
+  line-height: 44px;
+}
+
+.toolbox-count {
+  font-size: 0.72rem;
+  opacity: 0.75;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -578,6 +1605,58 @@ a:hover {
   .featured-project-card {
     grid-template-columns: 1fr;
   }
+
+  .education-overview {
+    flex-direction: column;
+  }
+
+  .education-photo {
+    flex-basis: auto;
+    width: 100%;
+  }
+
+  .course-list {
+    grid-template-columns: 1fr;
+  }
+
+  .gpa-chart li {
+    grid-template-columns: 6rem 1fr 4rem;
+  }
+
+  .xp-row {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+
+  .xp-row-label {
+    text-align: left;
+  }
+
+  .xp-axis .xp-row-label {
+    display: none;
+  }
+
+  .job-when {
+    align-items: flex-start;
+  }
+
+  .cert {
+    align-items: flex-start;
+  }
+
+  /* On a project page, push the sidebar (facts, project list) below the
+     content instead of above it. */
+  .project-layout {
+    align-items: stretch;
+  }
+
+  .project-layout .sidebar {
+    order: 2;
+  }
+
+  .project-layout .on-this-page {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -597,6 +1676,24 @@ a:hover {
 
   .sidebar {
     display: none;
+  }
+
+  .project-layout .sidebar {
+    display: block;
+  }
+
+  .project-title {
+    font-size: 1.9rem;
+  }
+
+  .project-pager {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .project-pager span:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    text-align: center;
   }
 
   .header-identity {

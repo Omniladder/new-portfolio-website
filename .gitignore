@@ -1,2 +1,24 @@
-# Created by venv; see https://docs.python.org/3/library/venv.html
-*
+# Per-fork content (docs/arch/0009)
+/data.json
+
+# Per-fork assets, only folder structure tracked (docs/arch/0013)
+/assets/*
+!/assets/.gitkeep
+!/assets/download/
+/assets/download/*
+!/assets/download/.gitkeep
+# App-owned assets are tracked (docs/arch/0017)
+!/assets/core-assets/
+
+# Generated output, fully rebuilt each run
+/dist/
+
+# Python / tooling
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# docs/refs/ is deliberately NOT ignored: reference images are committed (docs/arch/0031)
+hidden/

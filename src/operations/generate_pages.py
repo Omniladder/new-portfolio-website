@@ -19,11 +19,13 @@ def generate_pages(data: dict) -> None:
     generate_home(data)
     generate_projects_home(data)
     generate_projects(data)
+    generate_education(data)
+    generate_experience(data)
 
     project_count = len(data.get("projects", []))
     _log.info(
-        "Rendered %s (home, projects index, %s)",
-        pluralize(project_count + 2, "page"),
+        "Rendered %s (home, projects index, %s, education, experience)",
+        pluralize(project_count + 4, "page"),
         pluralize(project_count, "project page"),
     )
 
@@ -98,3 +100,43 @@ def generate_projects(data: dict) -> None:
             raise PageGenerationError(
                 f"Failed to generate the project page for '{slug}': {e}"
             ) from e
+
+
+def generate_education(data: dict) -> None:
+    """Generate the education page at dist/education/index.html.
+
+    Args:
+        data: Parsed, schema-validated site content (see parse_data()).
+
+    Returns:
+        None.
+
+    Raises:
+        PageGenerationError: If education.html can't be rendered or written.
+    """
+    try:
+        render_template_to_dist(
+            "education.html", data, output_path="education/index.html"
+        )
+    except (jinja2.TemplateError, OSError) as e:
+        raise PageGenerationError(f"Failed to generate the education page: {e}") from e
+
+
+def generate_experience(data: dict) -> None:
+    """Generate the experience page at dist/experience/index.html.
+
+    Args:
+        data: Parsed, schema-validated site content (see parse_data()).
+
+    Returns:
+        None.
+
+    Raises:
+        PageGenerationError: If experience.html can't be rendered or written.
+    """
+    try:
+        render_template_to_dist(
+            "experience.html", data, output_path="experience/index.html"
+        )
+    except (jinja2.TemplateError, OSError) as e:
+        raise PageGenerationError(f"Failed to generate the experience page: {e}") from e

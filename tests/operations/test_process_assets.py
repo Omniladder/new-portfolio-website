@@ -51,29 +51,47 @@ def test_process_asset_raises_on_os_error(tmp_path, monkeypatch):
         process_asset(source_path)
 
 
-def test_process_assets_processes_only_top_level_images(tmp_path, monkeypatch):
-    """process_assets skips subdirectories and non-image files in assets/."""
+def test_process_assets_processes_images_in_subfolders(tmp_path, monkeypatch):
+    """process_assets mirrors images in nested folders, skipping non-images."""
     root_dir = tmp_path / "root"
     assets_dir = root_dir / "assets"
-    assets_dir.mkdir(parents=True)
+    (assets_dir / "projects" / "chapp").mkdir(parents=True)
     (assets_dir / "logo.png").write_bytes(b"png bytes")
-    (assets_dir / "photo.jpg").write_bytes(b"jpg bytes")
+    (assets_dir / "projects" / "chapp" / "shot.jpg").write_bytes(b"jpg bytes")
+    (assets_dir / "projects" / "notes.txt").write_bytes(b"text")
     (assets_dir / ".gitkeep").write_bytes(b"")
-    (assets_dir / "download").mkdir()
-    (assets_dir / "download" / "resume.pdf").write_bytes(b"pdf bytes")
     dist_dir = tmp_path / "dist"
     _patch_dirs(monkeypatch, root_dir, dist_dir)
 
     process_assets()
 
     assert (dist_dir / "assets" / "logo.png").read_bytes() == b"png bytes"
-    assert (dist_dir / "assets" / "photo.jpg").read_bytes() == b"jpg bytes"
+    assert (dist_dir / "assets" / "projects" / "chapp" / "shot.jpg").read_bytes() == (
+        b"jpg bytes"
+    )
+    assert not (dist_dir / "assets" / "projects" / "notes.txt").exists()
     assert not (dist_dir / "assets" / ".gitkeep").exists()
+
+
+def test_process_assets_skips_download_and_core_assets(tmp_path, monkeypatch):
+    """assets/download/ and assets/core-assets/ are left to their own operations."""
+    root_dir = tmp_path / "root"
+    assets_dir = root_dir / "assets"
+    (assets_dir / "download").mkdir(parents=True)
+    (assets_dir / "download" / "poster.png").write_bytes(b"png bytes")
+    (assets_dir / "core-assets" / "icons").mkdir(parents=True)
+    (assets_dir / "core-assets" / "icons" / "computer.svg").write_bytes(b"svg")
+    dist_dir = tmp_path / "dist"
+    _patch_dirs(monkeypatch, root_dir, dist_dir)
+
+    process_assets()
+
     assert not (dist_dir / "assets" / "download").exists()
+    assert not (dist_dir / "assets" / "core-assets").exists()
 
 
 def test_process_assets_calls_process_asset_for_each_image(tmp_path, monkeypatch):
-    """process_assets delegates each top-level image to process_asset."""
+    """process_assets delegates each image to process_asset."""
     root_dir = tmp_path / "root"
     assets_dir = root_dir / "assets"
     assets_dir.mkdir(parents=True)

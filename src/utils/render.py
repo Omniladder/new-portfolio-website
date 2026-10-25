@@ -1,3 +1,5 @@
+from datetime import date
+
 import jinja2
 
 from src.utils.paths import DIST_DIR, ROOT_DIR, TEMPLATES_DIR
@@ -23,6 +25,18 @@ def inline_svg(relative_path: str) -> str:
     return (ROOT_DIR / relative_path).read_text()
 
 
+def build_month() -> str:
+    """Return the current month, for templates that need to know "now".
+
+    The experience page uses it as the end of a current job ("Present") on
+    its timeline and in job durations. See docs/arch/0037.
+
+    Returns:
+        str: Today's year and month as ``YYYY-MM``.
+    """
+    return date.today().strftime("%Y-%m")
+
+
 def render_template_to_dist(
     template_path: str, data: dict, output_path: str = None
 ) -> None:
@@ -45,6 +59,7 @@ def render_template_to_dist(
 
     environment = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATES_DIR))
     environment.globals["inline_svg"] = inline_svg
+    environment.globals["build_month"] = build_month()
     template = environment.get_template(template_path)
     rendered = template.render(**data)
 

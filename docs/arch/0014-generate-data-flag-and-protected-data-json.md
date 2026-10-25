@@ -1,6 +1,6 @@
 # 0014 — `generate.py --data`, and data.json is never touched by tooling
 
-**Status:** Accepted
+**Status:** Accepted. Smoke-test guidance extended by [[0025-smoke-test-real-data-after-template]] (template build, then the real `data.json`). The ban on modifying `data.json` is partially superseded by [[0030-agents-may-edit-data-json-on-request]] (in-place edits allowed when the user asks).
 
 ## Context
 

@@ -33,10 +33,6 @@ repos:
         language: system
         types: [text]
         files: ^(src/|tests/|templates/|static/|generate\.py$)
-      - id: check-added-large-files
-        name: Check for large added files
-        entry: check-added-large-files
-        language: system
 
       # Python lint + format.
       - id: ruff-check

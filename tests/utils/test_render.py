@@ -1,5 +1,7 @@
+import re
+
 from src.utils import render as render_module
-from src.utils.render import inline_svg, render_template_to_dist
+from src.utils.render import build_month, inline_svg, render_template_to_dist
 
 
 def _patch_dirs(monkeypatch, templates_dir, dist_dir):
@@ -36,6 +38,24 @@ def test_render_template_to_dist_exposes_inline_svg_global(tmp_path, monkeypatch
     render_template_to_dist("index.html", {})
 
     assert (dist_dir / "index.html").read_text() == "<svg>mark</svg>"
+
+
+def test_build_month_is_current_year_and_month():
+    """build_month returns today's month as YYYY-MM."""
+    assert re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", build_month())
+
+
+def test_render_template_to_dist_exposes_build_month_global(tmp_path, monkeypatch):
+    """Templates can read build_month directly without it being in data."""
+    templates_dir = tmp_path / "templates"
+    templates_dir.mkdir()
+    (templates_dir / "index.html").write_text("{{ build_month }}")
+    dist_dir = tmp_path / "dist"
+    _patch_dirs(monkeypatch, templates_dir, dist_dir)
+
+    render_template_to_dist("index.html", {})
+
+    assert (dist_dir / "index.html").read_text() == build_month()
 
 
 def test_render_template_to_dist_renders_data_into_template(tmp_path, monkeypatch):

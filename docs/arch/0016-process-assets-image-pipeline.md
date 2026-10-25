@@ -1,6 +1,6 @@
 # 0016 — `process_assets` copies top-level `assets/` images through a processing hook
 
-**Status:** Accepted
+**Status:** Accepted. The "top-level files only" rule is superseded by [[0032-assets-organized-in-subfolders]]: `process_assets()` now also processes images in subfolders.
 
 ## Context
 

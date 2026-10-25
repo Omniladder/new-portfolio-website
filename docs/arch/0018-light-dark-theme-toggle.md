@@ -1,6 +1,6 @@
 # 0018 — Light mode default, with a dark mode toggle
 
-**Status:** Accepted
+**Status:** Accepted. The default theme is superseded by [[0026-dark-mode-default]] (dark is now the default); the rest still stands.
 
 ## Context
 

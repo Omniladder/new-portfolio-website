@@ -4,6 +4,30 @@
   "description": "Schema for the site content consumed by generate.py. Fields get added here as generation logic lands, in lockstep with docs/guides/data-json.md.",
   "type": "object",
   "properties": {
+    "quotes": {
+      "type": "object",
+      "description": "One header quote per top-level section, keyed by the page's current_page. Project pages use the projects quote. See docs/arch/0028.",
+      "properties": {
+        "home": {
+          "type": "string",
+          "description": "Quote shown in the header of the home page."
+        },
+        "projects": {
+          "type": "string",
+          "description": "Quote shown in the header of the projects index and every project page."
+        },
+        "education": {
+          "type": "string",
+          "description": "Optional quote shown in the header of the education page. Omitted if unset (docs/arch/0035)."
+        },
+        "experience": {
+          "type": "string",
+          "description": "Optional quote shown in the header of the experience page. Omitted if unset (docs/arch/0035)."
+        }
+      },
+      "required": ["home", "projects"],
+      "additionalProperties": false
+    },
     "profile": {
       "type": "object",
       "description": "Home page content: who the site belongs to.",
@@ -19,10 +43,6 @@
         "tagline": {
           "type": "string",
           "description": "One-line current role/status shown under the role."
-        },
-        "quote": {
-          "type": "string",
-          "description": "A short, personal line shown near the top of the page."
         },
         "picture": {
           "type": "string",
@@ -41,6 +61,10 @@
         },
         "email": {
           "type": "string"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Optional phone number shown in the Contact section, e.g. '(555) 555-5555'. Omit to hide it."
         },
         "last_updated": {
           "type": "string",
@@ -104,7 +128,6 @@
         "name",
         "role",
         "tagline",
-        "quote",
         "picture",
         "welcome",
         "about",
@@ -137,11 +160,58 @@
           },
           "image": {
             "type": "string",
-            "description": "Path to a screenshot under assets/."
+            "description": "Path to the main screenshot under assets/. Shown as the large preview on the project page and as the thumbnail on the projects index."
+          },
+          "image_caption": {
+            "type": "string",
+            "description": "Optional caption under the main preview on the project page. Defaults to '<title> preview'."
+          },
+          "gallery": {
+            "type": "array",
+            "description": "Optional extra screenshots, shown as a thumbnail row at the bottom of the project page. Each opens full size when clicked.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "image": {
+                  "type": "string",
+                  "description": "Path to an image under assets/."
+                },
+                "caption": {
+                  "type": "string",
+                  "description": "Optional caption shown under the enlarged image."
+                }
+              },
+              "required": ["image"],
+              "additionalProperties": false
+            }
           },
           "featured": {
             "type": "boolean",
             "description": "Whether this project appears in the home page's Featured Projects section. Optional, defaults to not featured."
+          },
+          "highlights": {
+            "type": "array",
+            "description": "Optional short bullet points (awards, results, standout features) shown in a Highlights section on the project page.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "facts": {
+            "type": "array",
+            "description": "Optional label/value pairs (e.g. Year, Role, Team size, Status) shown in a Project Facts box in the project page's sidebar.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": ["label", "value"],
+              "additionalProperties": false
+            }
           },
           "technologies": {
             "type": "array",
@@ -154,6 +224,18 @@
                 "logo": {
                   "type": "string",
                   "description": "Path to a logo image under assets/."
+                },
+                "layer": {
+                  "type": "string",
+                  "description": "Optional part of the stack this technology covers, e.g. 'Frontend'. Adds a Layer column to the project page's technologies table."
+                },
+                "purpose": {
+                  "type": "string",
+                  "description": "Optional one-line note on what this technology does in the project. Adds a Purpose column to the project page's technologies table."
+                },
+                "featured": {
+                  "type": "boolean",
+                  "description": "Optional. Featured technologies show as a large logo grid at the top of the project page's Technologies section; the rest go in a table (or smaller grid) underneath. Defaults to not featured."
                 }
               },
               "required": ["name", "logo"],
@@ -162,6 +244,7 @@
           },
           "links": {
             "type": "array",
+            "description": "Any number of links shown as buttons under the project title. Use type 'github' (or 'source' for other code hosts) for a 'view source' link; leave it out if the code isn't public.",
             "items": {
               "type": "object",
               "properties": {
@@ -174,7 +257,7 @@
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["github", "linkedin", "website", "download"]
+                  "enum": ["github", "source", "linkedin", "website", "download"]
                 }
               },
               "required": ["label", "url", "type"],
@@ -193,8 +276,377 @@
         ],
         "additionalProperties": false
       }
+    },
+    "education": {
+      "type": "array",
+      "description": "Optional schools shown on the education page, most recent first. If left out, the page shows a short placeholder. See docs/arch/0036.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "school": {
+            "type": "string",
+            "description": "School name, shown as the section title."
+          },
+          "degree": {
+            "type": "string",
+            "description": "Degree earned, e.g. 'Bachelor of Science'."
+          },
+          "subtitle": {
+            "type": "string",
+            "description": "Optional one-line summary under the degree, e.g. majors and minor."
+          },
+          "location": {
+            "type": "string"
+          },
+          "dates": {
+            "type": "string",
+            "description": "Display string, e.g. 'August 2021 – May 2025'."
+          },
+          "summary": {
+            "type": "string",
+            "description": "Optional overview paragraph(s). Separate paragraphs with a blank line."
+          },
+          "image": {
+            "type": "string",
+            "description": "Optional photo under assets/, shown beside the overview."
+          },
+          "image_caption": {
+            "type": "string",
+            "description": "Optional caption under the photo."
+          },
+          "gallery": {
+            "type": "array",
+            "description": "Optional extra screenshots, shown as a thumbnail row at the bottom of the project page. Each opens full size when clicked.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "image": {
+                  "type": "string",
+                  "description": "Path to an image under assets/."
+                },
+                "caption": {
+                  "type": "string",
+                  "description": "Optional caption shown under the enlarged image."
+                }
+              },
+              "required": ["image"],
+              "additionalProperties": false
+            }
+          },
+          "facts": {
+            "type": "array",
+            "description": "Optional label/value pairs (e.g. Year, Role, Team size, Status) shown in a Project Facts box in the project page's sidebar.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": ["label", "value"],
+              "additionalProperties": false
+            }
+          },
+          "highlights": {
+            "type": "array",
+            "description": "Optional honors and achievements, shown as a starred list.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "links": {
+            "type": "array",
+            "description": "Optional buttons under the school name, e.g. a transcript download.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string",
+                  "description": "External URL, or a path under assets/download/ for downloadable files."
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["github", "linkedin", "website", "download"]
+                }
+              },
+              "required": ["label", "url", "type"],
+              "additionalProperties": false
+            }
+          },
+          "terms": {
+            "type": "array",
+            "description": "Optional transcript, one entry per term, in the order to show them.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Term name, e.g. 'Fall 2024'."
+                },
+                "gpa": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 4,
+                  "description": "Optional term GPA on a 4.0 scale. Terms with a GPA appear in the term GPA chart."
+                },
+                "honors": {
+                  "type": "string",
+                  "description": "Optional term honor, e.g. \"Dean's List\"."
+                },
+                "courses": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "description": "Course ID, e.g. 'COSC 420'."
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "grade": {
+                        "type": "string",
+                        "description": "Letter grade or 'P' for pass."
+                      },
+                      "credits": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "instructor": {
+                        "type": "string"
+                      },
+                      "topic": {
+                        "type": "string",
+                        "description": "Optional topic for variable-topic courses (seminars, research)."
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "projects": {
+                        "type": "array",
+                        "description": "Optional project_name slugs from projects[] that came out of this course; linked from the course and the Course Projects box.",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": ["code", "title"],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": ["name", "courses"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["school", "degree"],
+        "additionalProperties": false
+      }
+    },
+    "experience": {
+      "type": "object",
+      "description": "Optional content for the experience page: jobs, hackathons and other events, and certifications. If left out, the page shows a short placeholder. See docs/arch/0037.",
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "Optional overview paragraph(s). Separate paragraphs with a blank line."
+        },
+        "links": {
+          "type": "array",
+          "description": "Optional buttons in the page's hero, e.g. a resume download or LinkedIn.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string",
+                "description": "External URL, or a path under assets/download/ for downloadable files."
+              },
+              "type": {
+                "type": "string",
+                "enum": ["github", "linkedin", "website", "download"]
+              }
+            },
+            "required": ["label", "url", "type"],
+            "additionalProperties": false
+          }
+        },
+        "positions": {
+          "type": "array",
+          "description": "Optional jobs, most recent first. A first entry with no end date is shown in the hero as the current role.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "description": "Job title, e.g. 'Junior Cloud Engineer'."
+              },
+              "organization": {
+                "type": "string"
+              },
+              "location": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "description": "Optional short label, e.g. 'Full-time' or 'Internship'."
+              },
+              "start": {
+                "type": "string",
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+                "description": "Start month as YYYY-MM. Drives the displayed dates, the duration, and the timeline chart."
+              },
+              "end": {
+                "type": "string",
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+                "description": "Optional end month as YYYY-MM. Leave it out for a current job; it shows as 'Present'."
+              },
+              "summary": {
+                "type": "string",
+                "description": "Optional paragraph describing the role."
+              },
+              "highlights": {
+                "type": "array",
+                "description": "Optional accomplishments, shown as a starred list.",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "technologies": {
+                "type": "array",
+                "description": "Optional technologies used in the role. Shown as chips on the job and gathered into the page's Toolbox.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "logo": {
+                      "type": "string",
+                      "description": "Optional path to a logo image under assets/."
+                    }
+                  },
+                  "required": ["name"],
+                  "additionalProperties": false
+                }
+              },
+              "projects": {
+                "type": "array",
+                "description": "Optional project_name slugs from projects[] that came out of this job; linked from the job.",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["title", "organization", "start"],
+            "additionalProperties": false
+          }
+        },
+        "events": {
+          "type": "array",
+          "description": "Optional hackathons, competitions, or conferences, most recent first.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Event name, e.g. 'HackUMBC 2024'."
+              },
+              "host": {
+                "type": "string",
+                "description": "Optional host organization, e.g. a university."
+              },
+              "location": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string",
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?$",
+                "description": "Start date as YYYY-MM or YYYY-MM-DD. Places the event on the timeline chart."
+              },
+              "dates": {
+                "type": "string",
+                "description": "Optional display string, e.g. 'September 28–29, 2024'. Defaults to the month and year of date."
+              },
+              "role": {
+                "type": "string",
+                "description": "Optional part you played, e.g. 'Frontend developer'."
+              },
+              "team": {
+                "type": "string",
+                "description": "Optional team size, e.g. '4 developers'."
+              },
+              "awards": {
+                "type": "array",
+                "description": "Optional awards won. Award-winning events get a star on the timeline.",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "summary": {
+                "type": "string"
+              },
+              "project": {
+                "type": "string",
+                "description": "Optional project_name slug from projects[] built at the event. Its image and a link to its page are shown on the event card."
+              },
+              "image": {
+                "type": "string",
+                "description": "Optional path to an event image under assets/, e.g. its logo. Shown on the card when there's no linked project. See docs/arch/0038."
+              }
+            },
+            "required": ["name", "date"],
+            "additionalProperties": false
+          }
+        },
+        "certifications": {
+          "type": "array",
+          "description": "Optional certifications, most recent first.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "issuer": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string",
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+                "description": "Month earned as YYYY-MM. Places the certification on the timeline chart."
+              },
+              "expires": {
+                "type": "string",
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+                "description": "Optional expiry month as YYYY-MM."
+              },
+              "logo": {
+                "type": "string",
+                "description": "Optional path to an issuer logo under assets/."
+              },
+              "summary": {
+                "type": "string"
+              }
+            },
+            "required": ["name", "issuer", "date"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
     }
   },
-  "required": ["profile", "projects"],
+  "required": ["quotes", "profile", "projects"],
   "additionalProperties": false
 }
