@@ -1,0 +1,3 @@
+# Controller-side deploy tooling only, not needed to build the site.
+# pip install -r infra/requirements.txt
+ansible-core>=2.16,<3

@@ -1569,6 +1569,115 @@ a.event-thumb:hover img {
 }
 
 /* ---------------------------------------------------------------------- */
+/* 404 page                                                                */
+/* A giant blinking error code over a Windows 95-style error dialog.      */
+/* ---------------------------------------------------------------------- */
+
+.not-found {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.not-found-code {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(5rem, 22vw, 10rem);
+  font-weight: bold;
+  line-height: 1;
+  color: var(--name-color);
+  text-shadow: 4px 4px 0 var(--role-color);
+}
+
+.not-found-zero {
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .not-found-zero {
+    animation: none;
+  }
+}
+
+.error-dialog {
+  max-width: 30rem;
+  margin: 1.5rem auto;
+  border: 3px outset var(--border);
+  background-color: var(--sidebar-bg);
+  text-align: left;
+}
+
+.error-dialog-titlebar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.2rem 0.4rem 0.2rem 0.6rem;
+  background-color: var(--header-bg);
+  color: var(--header-fg);
+  border-bottom: 1px solid var(--border);
+}
+
+.error-dialog-titlebar h2 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.error-dialog-close {
+  border: 2px outset var(--border);
+  padding: 0 0.4rem;
+  line-height: 1.2;
+  font-weight: bold;
+}
+
+.error-dialog-body {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+}
+
+.error-dialog-body p {
+  margin: 0 0 0.5rem;
+}
+
+.error-dialog-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.error-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0 1rem 1rem;
+}
+
+.under-construction {
+  color: var(--quote-color);
+  font-weight: bold;
+}
+
+.hit-counter {
+  font-size: 0.85rem;
+}
+
+.hit-counter-digits {
+  display: inline-block;
+  padding: 0 0.3rem;
+  border: 2px inset var(--border);
+  background-color: #000000;
+  color: #33ff33;
+  font-family: "Courier New", Courier, monospace;
+  letter-spacing: 0.15em;
+}
+
+/* ---------------------------------------------------------------------- */
 /* Small screens                                                           */
 /* ---------------------------------------------------------------------- */
 

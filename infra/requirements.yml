@@ -1,0 +1,5 @@
+---
+# Ansible collections used by deploy.yml:
+#   ansible-galaxy collection install -r requirements.yml
+collections:
+  - name: ansible.posix

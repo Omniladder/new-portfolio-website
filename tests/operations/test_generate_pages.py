@@ -8,6 +8,7 @@ from src.operations.generate_pages import (
     generate_education,
     generate_experience,
     generate_home,
+    generate_not_found,
     generate_pages,
     generate_projects,
     generate_projects_home,
@@ -171,8 +172,35 @@ def test_generate_experience_raises_on_render_failure(monkeypatch):
         generate_experience({"name": "someone"})
 
 
+def test_generate_not_found_renders_404_template(monkeypatch):
+    """generate_not_found renders templates/404.html to dist/404.html."""
+    calls = []
+    monkeypatch.setattr(
+        generate_pages_module,
+        "render_template_to_dist",
+        lambda template_path, data, output_path=None: calls.append(
+            (template_path, data, output_path)
+        ),
+    )
+    data = {"name": "someone"}
+
+    generate_not_found(data)
+
+    assert calls == [("404.html", data, "404.html")]
+
+
+def test_generate_not_found_raises_on_render_failure(monkeypatch):
+    """A render failure raises PageGenerationError naming the 404 page."""
+    monkeypatch.setattr(
+        generate_pages_module, "render_template_to_dist", _broken_render
+    )
+
+    with pytest.raises(PageGenerationError, match="404 page"):
+        generate_not_found({"name": "someone"})
+
+
 def test_generate_pages_calls_every_page_generator(monkeypatch):
-    """generate_pages generates the home, projects, education, and experience pages."""
+    """generate_pages generates every page, including the 404 page."""
     calls = []
     monkeypatch.setattr(
         generate_pages_module,
@@ -199,6 +227,11 @@ def test_generate_pages_calls_every_page_generator(monkeypatch):
         "generate_experience",
         lambda data: calls.append(("experience", data)),
     )
+    monkeypatch.setattr(
+        generate_pages_module,
+        "generate_not_found",
+        lambda data: calls.append(("not_found", data)),
+    )
     data = {"name": "someone"}
 
     generate_pages(data)
@@ -209,6 +242,7 @@ def test_generate_pages_calls_every_page_generator(monkeypatch):
         ("projects", data),
         ("education", data),
         ("experience", data),
+        ("not_found", data),
     ]
 
 
@@ -221,6 +255,7 @@ def test_generate_pages_logs_page_count(monkeypatch, caplog):
         "generate_projects",
         "generate_education",
         "generate_experience",
+        "generate_not_found",
     ):
         monkeypatch.setattr(generate_pages_module, name, lambda data: None)
     data = {"projects": [{"project_name": "example_project"}]}
@@ -228,6 +263,6 @@ def test_generate_pages_logs_page_count(monkeypatch, caplog):
     generate_pages(data)
 
     assert (
-        "Rendered 5 pages (home, projects index, 1 project page, education, "
-        "experience)" in caplog.text
+        "Rendered 6 pages (home, projects index, 1 project page, education, "
+        "experience, 404)" in caplog.text
     )

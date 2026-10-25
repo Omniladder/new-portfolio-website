@@ -17,7 +17,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     Returns:
         argparse.Namespace: Parsed arguments. ``data`` is the Path of the
         JSON file to build from, defaulting to ``DATA_PATH``
-        (``ROOT_DIR / "data.json"``).
+        (``ROOT_DIR / "data.json"``). ``no_image_processing`` is True when
+        ``--no-image-processing`` was passed, meaning images should be copied
+        as-is instead of going through process_image_data().
     """
     parser = argparse.ArgumentParser(
         description="Generate the static site in dist/ from a data file."
@@ -29,6 +31,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         metavar="PATH",
         help="JSON data file to build from (default: data.json at the repo root)",
     )
+    parser.add_argument(
+        "--no-image-processing",
+        action="store_true",
+        help="copy images into dist/ as-is, skipping pixelation, dithering, "
+        "and palette reduction (faster builds)",
+    )
     args = parser.parse_args(argv)
-    _log.info("Building from %s", display_path(args.data))
+    _log.info(
+        "Building from %s%s",
+        display_path(args.data),
+        " (image processing off)" if args.no_image_processing else "",
+    )
     return args

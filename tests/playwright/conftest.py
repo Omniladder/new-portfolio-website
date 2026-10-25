@@ -77,7 +77,8 @@ def site_url(site_data):
     """Build the site from data.json and serve it over HTTP.
 
     generate.py only reads data.json, so building from it is safe
-    (docs/arch/0025).
+    (docs/arch/0025). Images are copied as-is (--no-image-processing,
+    docs/arch/0043): no test checks processed pixels, and it saves ~45 s.
 
     Args:
         site_data: Ensures data.json exists before building.
@@ -86,7 +87,7 @@ def site_url(site_data):
         str: Base URL of the running server, e.g. "http://127.0.0.1:51234".
     """
     subprocess.run(
-        [sys.executable, "generate.py"],
+        [sys.executable, "generate.py", "--no-image-processing"],
         cwd=ROOT_DIR,
         check=True,
         capture_output=True,

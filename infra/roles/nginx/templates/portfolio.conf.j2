@@ -1,0 +1,27 @@
+# {{ ansible_managed }}
+server {
+    listen {{ portfolio_listen_port }} default_server;
+    listen [::]:{{ portfolio_listen_port }} default_server;
+    server_name {{ portfolio_server_name }};
+
+    root {{ portfolio_web_root }};
+    index index.html;
+
+    gzip on;
+    gzip_types text/css application/javascript image/svg+xml application/json;
+
+    # Built by generate_pages; links root-absolutely so it works at any
+    # depth (docs/arch/0045).
+    error_page 404 /404.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # Images, CSS, and JS keep their names across builds, so cache them
+    # briefly rather than forever.
+    location ~* \.(css|js|png|jpe?g|gif|webp|svg|ico|pdf)$ {
+        expires 1h;
+        add_header Cache-Control "public";
+    }
+}

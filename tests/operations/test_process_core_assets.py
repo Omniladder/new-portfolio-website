@@ -108,3 +108,31 @@ def test_process_core_assets_logs_counts(tmp_path, monkeypatch, caplog):
         "Processed assets/core-assets/ -> dist/assets/core-assets/ "
         "(2 images, 1 other file copied)"
     ) in caplog.text
+
+
+def test_process_core_asset_skips_processing_when_disabled(tmp_path, monkeypatch):
+    """With process_images=False, an image's bytes are written unchanged."""
+    core_dir = _make_core_dir(tmp_path)
+    dist_dir = tmp_path / "dist"
+    _patch_dirs(monkeypatch, tmp_path / "root", dist_dir)
+    monkeypatch.setattr(
+        process_core_assets_module, "process_image_data", lambda data: b"processed"
+    )
+
+    assert process_core_asset(core_dir / "tile.png", process_images=False) is True
+    assert (dist_dir / "assets" / "core-assets" / "tile.png").read_bytes() == (
+        (core_dir / "tile.png").read_bytes()
+    )
+
+
+def test_process_core_assets_logs_when_processing_disabled(
+    tmp_path, monkeypatch, caplog
+):
+    """process_core_assets notes in its log line that images went unprocessed."""
+    caplog.set_level(logging.INFO, logger="portfolio")
+    _make_core_dir(tmp_path)
+    _patch_dirs(monkeypatch, tmp_path / "root", tmp_path / "dist")
+
+    process_core_assets(process_images=False)
+
+    assert "(2 images unprocessed, 1 other file copied)" in caplog.text

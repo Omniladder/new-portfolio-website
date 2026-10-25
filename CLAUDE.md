@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Core pipeline is implemented and working: `generate.py` runs `parse_args` → `parse_data` → `scaffold_dist` → `copy_static` → `process_assets` → `copy_downloads` → `process_core_assets` → `generate_pages`, each covered by tests under `tests/` (91 passing as of this writing). The `data.json` schema (`src/schema/data.schema.json`) models a full `profile` and `projects[]`, and `templates/home.html` renders it. `templates/project_home.html` renders the projects index, and `templates/project.html` renders each project page (links as buttons, preview, technologies, optional gallery with a CSS-only lightbox, highlights, and facts). `templates/education.html` renders the optional `education` list (school hero, facts, honors, a GPA-by-term chart, course projects, and an expandable per-term transcript; see docs/arch/0036) at `education/index.html`, and `templates/experience.html` renders the optional `experience` section (current-role hero, a career timeline chart, work history, hackathon cards linked to their projects, certifications, and a merged technology toolbox; see docs/arch/0037) at `experience/index.html`; both are linked from the header and footer nav (see docs/arch/0035). Run `python3 generate.py` (against `data.json`) to verify a build before relying on it.
+Core pipeline is implemented and working: `generate.py` runs `parse_args` → `parse_data` → `scaffold_dist` → `copy_static` → `process_assets` → `copy_downloads` → `process_core_assets` → `generate_pages`, each covered by tests under `tests/` (99 passing as of this writing). The `data.json` schema (`src/schema/data.schema.json`) models a full `profile` and `projects[]`, and `templates/home.html` renders it. `templates/project_home.html` renders the projects index, and `templates/project.html` renders each project page (links as buttons, preview, technologies, optional gallery with a CSS-only lightbox, highlights, and facts). `templates/education.html` renders the optional `education` list (school hero, facts, honors, a GPA-by-term chart, course projects, and an expandable per-term transcript; see docs/arch/0036) at `education/index.html`, and `templates/experience.html` renders the optional `experience` section (current-role hero, a career timeline chart, work history, hackathon cards linked to their projects, certifications, and a merged technology toolbox; see docs/arch/0037) at `experience/index.html`; both are linked from the header and footer nav (see docs/arch/0035). `templates/404.html` renders a 90s error-dialog 404 page at `404.html` with root-absolute links, which nginx serves for missing URLs (see docs/arch/0045). Run `python3 generate.py` (against `data.json`) to verify a build before relying on it.
 
 ## What this is
 
@@ -30,6 +30,8 @@ assets/              images; assets/download/ for files like a resume PDF — gi
                      into dist/assets/ by process_assets, see docs/arch/0016, 0032
                      assets/core-assets/ is processed into dist/assets/core-assets/ by process_core_assets, see docs/arch/0042
 dist/                generated output — gitignored, fully rebuilt each run, never hand-edited
+infra/               Ansible deploy to an nginx host: deploy.sh (entry point), deploy.yml, roles/nginx, roles/portfolio, see docs/arch/0044
+                     infra/inventory.ini is gitignored, per-fork; copy infra/inventory.example.ini
 docs/arch/           architecture decision records — read before structural changes
 docs/design/         AI-facing design decision records and style guides — read before visual changes
 docs/refs/           visual inspiration only, not consumed at build time
@@ -67,10 +69,14 @@ python3 generate.py
 # output in dist/
 
 python3 generate.py   # smoke test: real data.json only (read-only), see docs/arch/0033
+python3 generate.py --no-image-processing   # same, but copies images as-is (~1 s vs ~45 s); use for smoke tests unless the change touches image processing, see docs/arch/0043
 
 python3 tests/test.py   # run the test suite (same command the pre-commit hook runs)
 ruff check . && ruff format .   # lint + format (also run by the pre-commit hook)
 pre-commit run --all-files      # run every hook manually
+
+infra/deploy.sh                 # deploy to the host in infra/inventory.ini (sync, build on host, publish behind nginx), see docs/arch/0044, docs/guides/deploying.md
+infra/deploy.sh --check         # dry run; never run a real deploy unless the user asks — it's outward-facing
 
 playwright install chromium     # one-time, for the e2e suite below
 pytest tests/playwright         # browser end-to-end tests against data.json only; not run by tests/test.py or pre-commit, see docs/arch/0019, 0033
@@ -90,7 +96,7 @@ pytest tests/playwright         # browser end-to-end tests against data.json onl
 - App-owned assets the site depends on regardless of whose portfolio it is go in `assets/core-assets/` (tracked); never put personal/per-fork files there, they'd be committed (see [0017](docs/arch/0017-core-assets-tracked.md)). `process_core_assets` writes it into `dist/assets/core-assets/`: images go through the same `process_image_data` pipeline as `process_assets`, other files (e.g. licenses) are copied as-is (see [0042](docs/arch/0042-process-core-assets.md)).
 - `process_assets` copies every image under `assets/`, recursively, into the mirrored path in `dist/assets/`, skipping `assets/download/` and `assets/core-assets/` (handled by `copy_downloads` and `process_core_assets`). Each image goes through a read → manipulate → write hook in `src/utils/images.py`; the manipulate step runs `reduce_image_quality` (shrink to 50%, nearest-neighbor regrow) → `dither_image` (Floyd–Steinberg) → `reduce_color_palette` (32 colors) via Pillow, passing SVGs and animated images through unchanged (see [0016](docs/arch/0016-process-assets-image-pipeline.md), [0032](docs/arch/0032-assets-organized-in-subfolders.md), [0040](docs/arch/0040-pillow-dither-and-32-color-palette.md), [0041](docs/arch/0041-pixelate-in-reduce-image-quality.md)). Recommended layout: `assets/projects/<project_name>/`, `assets/logos/`, `assets/profile/`, `assets/education/`, `assets/events/<event>/`.
 - Icons referenced from templates use `<span class="icon icon-<name>">`, never `<img>`, so `static/styles.css`'s `mask-image` + `background-color: currentColor` technique can tint a single monochrome SVG per theme (see [0020](docs/arch/0020-core-assets-copy-pipeline-and-icon-theming.md)).
-- Internal links between pages target `index.html` explicitly (`projects/index.html`, never `projects/`), so the site works when opened from disk via `file://` (see [0027](docs/arch/0027-explicit-index-html-links.md)).
+- Internal links between pages target `index.html` explicitly (`projects/index.html`, never `projects/`), so the site works when opened from disk via `file://` (see [0027](docs/arch/0027-explicit-index-html-links.md)) The 404 page is the one exception that links root-absolutely (`/index.html`), since it's served at any depth (see [0045](docs/arch/0045-404-page-root-absolute-links.md)).
 - Each operation's root function catches the low-level exceptions it can raise and re-raises the matching type from `src/errors/` with a short message, chaining the original via `raise ... from e` (see [0012](docs/arch/0012-explicit-errors-per-operation.md)). `src/errors/` classes themselves have no tests of their own — the failure path is tested in the operation's existing test file instead.
 
 ## Recording decisions as they're made

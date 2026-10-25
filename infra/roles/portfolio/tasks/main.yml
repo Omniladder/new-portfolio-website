@@ -1,0 +1,88 @@
+---
+- name: Install build dependencies
+  ansible.builtin.apt:
+    name:
+      - python3
+      - python3-venv
+      - rsync
+      - acl
+    state: present
+
+- name: Create portfolio user
+  ansible.builtin.user:
+    name: "{{ portfolio_user }}"
+    system: true
+    home: "{{ portfolio_home }}"
+    shell: /usr/sbin/nologin
+
+- name: Create source directory
+  ansible.builtin.file:
+    path: "{{ portfolio_src_dir }}"
+    state: directory
+    owner: "{{ portfolio_user }}"
+    group: "{{ portfolio_user }}"
+    mode: "0755"
+
+- name: Check for data.json on the controller
+  ansible.builtin.stat:
+    path: "{{ portfolio_repo_root }}/data.json"
+  delegate_to: localhost
+  become: false
+  register: portfolio_data_json
+
+- name: Fail without data.json
+  ansible.builtin.fail:
+    msg: >-
+      {{ portfolio_repo_root }}/data.json doesn't exist. It's the site's content
+      (gitignored, see docs/arch/0009); create it before deploying.
+  when: not portfolio_data_json.stat.exists
+
+# data.json and assets/ are gitignored, so the host can't git-clone them;
+# rsync the working tree instead.
+- name: Sync repo to host
+  ansible.posix.synchronize:
+    src: "{{ portfolio_repo_root }}/"
+    dest: "{{ portfolio_src_dir }}/"
+    delete: true
+    recursive: true
+    rsync_opts: "{{ ['--chown=' ~ portfolio_user ~ ':' ~ portfolio_user] + (portfolio_sync_excludes | map('regex_replace', '^', '--exclude=') | list) }}"
+
+- name: Install Python requirements
+  ansible.builtin.pip:
+    requirements: "{{ portfolio_src_dir }}/requirements.txt"
+    virtualenv: "{{ portfolio_venv_dir }}"
+    virtualenv_command: python3 -m venv
+  become: true
+  become_user: "{{ portfolio_user }}"
+
+- name: Build site
+  ansible.builtin.command:
+    argv: "{{ [portfolio_venv_dir ~ '/bin/python', 'generate.py'] + ([] if portfolio_image_processing else ['--no-image-processing']) }}"
+    chdir: "{{ portfolio_src_dir }}"
+  become: true
+  become_user: "{{ portfolio_user }}"
+  environment:
+    NO_COLOR: "1"
+  register: portfolio_build
+  changed_when: true
+
+- name: Show build log
+  ansible.builtin.debug:
+    var: portfolio_build.stderr_lines
+
+# Only runs after a successful build, so a failed generate.py leaves the
+# live site untouched.
+- name: Publish dist to web root
+  ansible.builtin.command:
+    argv:
+      - rsync
+      - --recursive
+      - --links
+      - --checksum
+      - --delete
+      - --chmod=D755,F644
+      - --itemize-changes
+      - "{{ portfolio_src_dir }}/dist/"
+      - "{{ portfolio_web_root }}/"
+  register: portfolio_publish
+  changed_when: portfolio_publish.stdout | length > 0

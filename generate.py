@@ -15,9 +15,9 @@ def main() -> None:
     data = parse_data(args.data)
     scaffold_dist()
     copy_static()
-    process_assets()
+    process_assets(process_images=not args.no_image_processing)
     copy_downloads()
-    process_core_assets()
+    process_core_assets(process_images=not args.no_image_processing)
     generate_pages(data)
 
 

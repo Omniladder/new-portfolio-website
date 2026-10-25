@@ -10,6 +10,9 @@
 # App-owned assets are tracked (docs/arch/0017)
 !/assets/core-assets/
 
+# Per-fork deploy target, only the example is tracked (docs/arch/0044)
+/infra/inventory.ini
+
 # Generated output, fully rebuilt each run
 /dist/
 

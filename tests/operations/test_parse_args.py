@@ -19,6 +19,19 @@ def test_parse_args_data_flag_overrides_default():
     )
 
 
+def test_parse_args_image_processing_on_by_default():
+    """Without the flag, no_image_processing is False."""
+    assert parse_args([]).no_image_processing is False
+
+
+def test_parse_args_no_image_processing_flag(caplog):
+    """--no-image-processing sets no_image_processing and is logged."""
+    caplog.set_level(logging.INFO, logger="portfolio")
+
+    assert parse_args(["--no-image-processing"]).no_image_processing is True
+    assert "(image processing off)" in caplog.text
+
+
 def test_parse_args_rejects_unknown_arguments():
     """Unknown arguments exit with argparse's usage error rather than being ignored."""
     with pytest.raises(SystemExit):

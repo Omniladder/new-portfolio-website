@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 Not Found — {{ profile.name }}</title>
+  {#
+    The server returns this page for a missing URL at any depth
+    (/no/such/page), so every link is root-absolute ("/"), not relative.
+    See docs/arch/0045.
+  #}
+  <script>
+    // Opened from disk, "/" is the filesystem root, so load the stylesheet and
+    // script relative to this file (dist/404.html) and relativize every
+    // root-absolute link once the page is parsed. Served, this does nothing.
+    if (location.protocol === "file:") {
+      document.write('<link rel="stylesheet" href="static/styles.css">');
+      document.write('<script src="static/theme-toggle.js"><\/script>');
+      document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('[href^="/"], [src^="/"]').forEach(function (el) {
+          var attr = el.hasAttribute("href") ? "href" : "src";
+          el.setAttribute(attr, el.getAttribute(attr).slice(1));
+        });
+      });
+    }
+  </script>
+  <link rel="icon" type="image/svg+xml" href="/assets/core-assets/icons/computer.svg">
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/theme-toggle.js"></script>
+</head>
+<body>
+  <div class="page not-found-page">
+
+    {% set root = "/" %}
+    {% set current_page = "not_found" %}
+    {% include "partials/header.html" %}
+
+    <main class="not-found">
+      <p class="not-found-code" aria-hidden="true">4<span class="not-found-zero">0</span>4</p>
+
+      <section class="error-dialog" role="alertdialog" aria-labelledby="error-dialog-title" aria-describedby="error-dialog-message">
+        <div class="error-dialog-titlebar">
+          <h2 id="error-dialog-title">File Not Found</h2>
+          <span class="error-dialog-close" aria-hidden="true">&times;</span>
+        </div>
+        <div class="error-dialog-body">
+          <span class="error-dialog-icon" aria-hidden="true">⚠️</span>
+          <div id="error-dialog-message">
+            <p><strong>Error 404:</strong> The page you requested cannot be found.</p>
+            <p>It may have been moved, renamed, or eaten by the dial-up modem.
+              Please check the address and try again.</p>
+          </div>
+        </div>
+        <div class="error-dialog-actions">
+          <a class="retro-button" href="/index.html"><span class="icon" aria-hidden="true">🏠</span> Return to Home</a>
+          <a class="retro-button" href="/projects/index.html"><span class="icon" aria-hidden="true">📁</span> Browse Projects</a>
+        </div>
+      </section>
+
+      <p class="under-construction"><span class="icon" aria-hidden="true">🚧</span> This corner of the web is still under construction <span class="icon" aria-hidden="true">🚧</span></p>
+      <p class="hit-counter">You are lost visitor #<span class="hit-counter-digits">000404</span></p>
+    </main>
+
+    <footer class="site-footer">
+      <nav class="site-nav" aria-label="Footer navigation">
+        <a href="/index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a> |
+        <a href="/projects/index.html"><span class="icon" aria-hidden="true">📁</span> Projects</a> |
+        <a href="/education/index.html"><span class="icon" aria-hidden="true">🎓</span> Education</a> |
+        <a href="/experience/index.html"><span class="icon" aria-hidden="true">💼</span> Experience</a>
+      </nav>
+      <p class="retro-badge"><span class="icon" aria-hidden="true">⭐</span> Best viewed with any browser, preferably with JavaScript enabled.</p>
+      <p>&copy; {{ profile.last_updated }} {{ profile.name }}. All rights reserved.</p>
+    </footer>
+
+  </div>
+</body>
+</html>

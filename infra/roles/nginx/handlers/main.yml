@@ -1,0 +1,11 @@
+---
+# Handlers run in the order listed here, so a bad config fails the play
+# before nginx is asked to reload it.
+- name: Test nginx config
+  ansible.builtin.command: nginx -t
+  changed_when: false
+
+- name: Reload nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded

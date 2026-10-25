@@ -21,11 +21,12 @@ def generate_pages(data: dict) -> None:
     generate_projects(data)
     generate_education(data)
     generate_experience(data)
+    generate_not_found(data)
 
     project_count = len(data.get("projects", []))
     _log.info(
-        "Rendered %s (home, projects index, %s, education, experience)",
-        pluralize(project_count + 4, "page"),
+        "Rendered %s (home, projects index, %s, education, experience, 404)",
+        pluralize(project_count + 5, "page"),
         pluralize(project_count, "project page"),
     )
 
@@ -140,3 +141,24 @@ def generate_experience(data: dict) -> None:
         )
     except (jinja2.TemplateError, OSError) as e:
         raise PageGenerationError(f"Failed to generate the experience page: {e}") from e
+
+
+def generate_not_found(data: dict) -> None:
+    """Generate the 404 page at dist/404.html.
+
+    The web server returns it for any missing URL, so the template links
+    root-absolutely rather than relative to its own path. See docs/arch/0045.
+
+    Args:
+        data: Parsed, schema-validated site content (see parse_data()).
+
+    Returns:
+        None.
+
+    Raises:
+        PageGenerationError: If 404.html can't be rendered or written.
+    """
+    try:
+        render_template_to_dist("404.html", data, output_path="404.html")
+    except (jinja2.TemplateError, OSError) as e:
+        raise PageGenerationError(f"Failed to generate the 404 page: {e}") from e

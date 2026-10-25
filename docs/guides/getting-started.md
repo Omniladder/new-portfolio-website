@@ -64,6 +64,8 @@ python3 -m http.server --directory dist
 
 Then open <http://localhost:8000> in a browser. Re-run `python3 generate.py` after each change to `data.json` and refresh the page.
 
+Most of the build time goes into giving your images their retro, dithered look. While you're editing text, `python3 generate.py --no-image-processing` skips that step and finishes in about a second. Images will show up unprocessed. Do a plain `python3 generate.py` before you publish. See [assets.md](assets.md#how-your-images-are-processed).
+
 ## When the build fails
 
 - **A validation error mentioning a field name:** `data.json` doesn't match what the generator expects. Common causes are a missing required field, a misspelled field name (unknown fields are rejected), or a `type` on a link that isn't `github`, `website`, or `download`. Compare your file against `data.template.json` and [data-json.md](data-json.md).

@@ -1,0 +1,10 @@
+---
+# Installs nginx, syncs this repo (with data.json and assets/) to the host,
+# builds the site there with generate.py, and publishes dist/ to the web root.
+# See docs/guides/deploying.md and docs/arch/0044.
+- name: Deploy portfolio site
+  hosts: portfolio
+  become: true
+  roles:
+    - nginx
+    - portfolio

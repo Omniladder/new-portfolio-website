@@ -101,7 +101,9 @@ def test_process_assets_calls_process_asset_for_each_image(tmp_path, monkeypatch
     _patch_dirs(monkeypatch, root_dir, dist_dir)
     calls = []
     monkeypatch.setattr(
-        process_assets_module, "process_asset", lambda path: calls.append(path)
+        process_assets_module,
+        "process_asset",
+        lambda path, process_images: calls.append(path),
     )
 
     process_assets()
@@ -116,8 +118,47 @@ def test_process_assets_logs_image_count(tmp_path, monkeypatch, caplog):
     (root_dir / "assets").mkdir(parents=True)
     (root_dir / "assets" / "logo.png").write_bytes(b"png bytes")
     _patch_dirs(monkeypatch, root_dir, tmp_path / "dist")
-    monkeypatch.setattr(process_assets_module, "process_asset", lambda path: None)
+    monkeypatch.setattr(
+        process_assets_module, "process_asset", lambda path, process_images: None
+    )
 
     process_assets()
 
     assert "Processed assets/ -> dist/assets/ (1 image)" in caplog.text
+
+
+def test_process_asset_skips_processing_when_disabled(tmp_path, monkeypatch):
+    """With process_images=False, the image's bytes are written unchanged."""
+    root_dir = tmp_path / "root"
+    (root_dir / "assets").mkdir(parents=True)
+    source_path = root_dir / "assets" / "logo.png"
+    source_path.write_bytes(b"raw bytes")
+    dist_dir = tmp_path / "dist"
+    _patch_dirs(monkeypatch, root_dir, dist_dir)
+    monkeypatch.setattr(
+        process_assets_module, "process_image_data", lambda data: b"processed"
+    )
+
+    process_asset(source_path, process_images=False)
+
+    assert (dist_dir / "assets" / "logo.png").read_bytes() == b"raw bytes"
+
+
+def test_process_assets_passes_process_images_through(tmp_path, monkeypatch, caplog):
+    """process_assets hands process_images to each process_asset call and logs it."""
+    caplog.set_level(logging.INFO, logger="portfolio")
+    root_dir = tmp_path / "root"
+    (root_dir / "assets").mkdir(parents=True)
+    (root_dir / "assets" / "logo.png").write_bytes(b"png bytes")
+    _patch_dirs(monkeypatch, root_dir, tmp_path / "dist")
+    flags = []
+    monkeypatch.setattr(
+        process_assets_module,
+        "process_asset",
+        lambda path, process_images: flags.append(process_images),
+    )
+
+    process_assets(process_images=False)
+
+    assert flags == [False]
+    assert "(1 image, copied unprocessed)" in caplog.text

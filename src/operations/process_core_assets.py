@@ -16,13 +16,18 @@ from src.utils.paths import DIST_DIR, ROOT_DIR
 _log = get_logger("process_core_assets")
 
 
-def process_core_assets() -> None:
+def process_core_assets(process_images: bool = True) -> None:
     """Process assets/core-assets/ into dist/assets/core-assets/.
 
     Core assets are app-owned (not per-fork content, see docs/arch/0017).
     Their images go through the same read → process → write pipeline as
     process_assets; any other file (e.g. a license) is copied as-is. See
     docs/arch/0042.
+
+    Args:
+        process_images: Whether to run each image through
+            process_image_data(). False copies images as-is (generate.py's
+            ``--no-image-processing``, see docs/arch/0043).
 
     Returns:
         None.
@@ -32,26 +37,28 @@ def process_core_assets() -> None:
 
     image_count = 0
     for source_path in tqdm(paths, desc="Processing core assets"):
-        image_count += process_core_asset(source_path)
+        image_count += process_core_asset(source_path, process_images)
 
     _log.info(
-        "Processed assets/core-assets/ -> dist/assets/core-assets/ (%s, %s copied)",
+        "Processed assets/core-assets/ -> dist/assets/core-assets/ (%s%s, %s copied)",
         pluralize(image_count, "image"),
+        "" if process_images else " unprocessed",
         pluralize(len(paths) - image_count, "other file"),
     )
 
 
-def process_core_asset(source_path: Path) -> bool:
+def process_core_asset(source_path: Path, process_images: bool = True) -> bool:
     """Process one core-asset image, or copy one non-image file, into dist/.
 
     Args:
         source_path: Path of the file, somewhere under ROOT_DIR. Its path
             relative to ROOT_DIR is reproduced under DIST_DIR, per the
             mirroring convention in docs/arch/0005.
+        process_images: Whether to run an image through
+            process_image_data(). False copies it unchanged.
 
     Returns:
-        bool: True if the file was an image run through process_image_data(),
-        False if it was copied unchanged.
+        bool: True if the file was an image, False if it was some other file.
 
     Raises:
         CoreAssetsProcessingError: If the file can't be read, processed,
@@ -61,7 +68,9 @@ def process_core_asset(source_path: Path) -> bool:
     is_image = source_path.suffix.lower() in IMAGE_EXTENSIONS
     try:
         if is_image:
-            data = process_image_data(read_image_data(source_path))
+            data = read_image_data(source_path)
+            if process_images:
+                data = process_image_data(data)
             write_image_data(destination_path, data)
         else:
             destination_path.parent.mkdir(parents=True, exist_ok=True)

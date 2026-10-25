@@ -51,6 +51,42 @@ The generator never scans these folders. A file only appears on your site if `da
 
 See [data-json.md](data-json.md) for the full list of fields.
 
+## How your images are processed
+
+Your images get a 90s-homepage look during the build. Each image in `assets/` goes through three steps on its way to `dist/assets/`:
+
+1. **Pixelate.** It's shrunk to half its width and height, then scaled back up to its original size without smoothing. Every pixel becomes a hard-edged 2×2 block.
+2. **Dither.** It's mapped onto a 32-color palette picked from the image's own colors. Floyd–Steinberg dithering turns smooth gradients into speckled dot patterns instead of flat bands.
+3. **Reduce colors.** The image is capped at those 32 colors.
+
+The image keeps its original size, file name, and format, so the paths in `data.json` don't change. Transparency is kept. The images in `assets/core-assets/` get the same treatment.
+
+Your original files in `assets/` are never modified. Only the copies in `dist/` are changed.
+
+Some files are copied as-is instead:
+
+- **SVGs**, since they're vector drawings rather than pixels. This keeps logos and icons sharp.
+- **Animated GIFs**, since processing would keep only the first frame.
+- **Everything in `assets/download/`**, since visitors should get the exact file you put there.
+
+Things to expect:
+
+- **Fine detail gets lost.** Thin lines and small text in logos and screenshots can become hard to read. If a logo needs to stay crisp, use an SVG version.
+- **JPEGs end up with more than 32 colors.** They're still pixelated and dithered, but saving as JPEG again adds compression noise. Use PNG if you want the strict 32-color look.
+- **Processing is slow.** It takes roughly a quarter of a second per image, so a folder of 150+ images adds most of a minute to every build.
+
+### Skipping processing for faster builds
+
+When you're working on text in `data.json` and just want to check the page quickly, skip the image step:
+
+```bash
+python3 generate.py --no-image-processing
+```
+
+Images are then copied into `dist/` unchanged, and the build finishes in about a second. The build output says `image processing off` so you can tell which kind of build you have.
+
+Don't publish a build made this way: the images won't have the retro look. Run plain `python3 generate.py` before you deploy `dist/`.
+
 ## Tips
 
 - **Paths are case-sensitive** on most web hosts. `assets/Logo.png` and `assets/logo.png` are different files, even if your computer treats them as the same.
@@ -60,4 +96,4 @@ See [data-json.md](data-json.md) for the full list of fields.
 
 ## Current state
 
-Images anywhere under `assets/` (except `download/` and `core-assets/`) are copied into `dist/assets/` at the same path, and files in `assets/download/` are copied as-is to `dist/assets/download/`. Raster images (PNG, JPEG, GIF, WebP) are pixelated (shrunk to half size, then scaled back up into 2×2 blocks) and dithered down to 32 colors for the retro look. SVGs and animated GIFs are copied unchanged ([docs/arch/0040](../arch/0040-pillow-dither-and-32-color-palette.md)). The generator doesn't check that the files you reference actually exist, so a wrong path shows up as a broken image on the page rather than a build error.
+Images anywhere under `assets/` (except `download/` and `core-assets/`) are copied into `dist/assets/` at the same path, and files in `assets/download/` are copied as-is to `dist/assets/download/`. Raster images (PNG, JPEG, GIF, WebP) are pixelated, dithered, and reduced to 32 colors, unless you pass `--no-image-processing` (see [How your images are processed](#how-your-images-are-processed); [docs/arch/0040](../arch/0040-pillow-dither-and-32-color-palette.md), [0041](../arch/0041-pixelate-in-reduce-image-quality.md), [0043](../arch/0043-no-image-processing-flag.md)). The generator doesn't check that the files you reference actually exist, so a wrong path shows up as a broken image on the page rather than a build error.

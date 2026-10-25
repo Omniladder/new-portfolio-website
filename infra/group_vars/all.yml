@@ -1,0 +1,37 @@
+---
+# Defaults for deploy.yml. Override per host in inventory.ini.
+
+# Repo checkout on the controller that gets synced to the host.
+portfolio_repo_root: "{{ playbook_dir }}/.."
+
+# System user that owns the source copy and runs generate.py.
+portfolio_user: portfolio
+portfolio_home: /opt/portfolio
+portfolio_src_dir: "{{ portfolio_home }}/src"
+portfolio_venv_dir: "{{ portfolio_home }}/venv"
+
+# Where nginx serves the built dist/ from.
+portfolio_web_root: /var/www/portfolio
+
+# Domain(s) nginx answers for; "_" matches any Host header.
+portfolio_server_name: _
+portfolio_listen_port: 80
+
+# Published builds keep the retro image processing (docs/arch/0043).
+# Set false only for a quick throwaway deploy.
+portfolio_image_processing: true
+
+# Paths left out of the sync: build-time inputs only, nothing generate.py
+# doesn't read. data.json and assets/ are gitignored but deliberately synced.
+portfolio_sync_excludes:
+  - .git/
+  - .venv/
+  - .claude/
+  - .pytest_cache/
+  - .ruff_cache/
+  - __pycache__/
+  - dist/
+  - docs/
+  - hidden/
+  - infra/
+  - tests/
