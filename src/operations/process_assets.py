@@ -16,7 +16,7 @@ _log = get_logger("process_assets")
 
 
 # Subdirectories of assets/ that other operations copy, so process_assets
-# leaves them alone: copy_downloads and copy_core_assets respectively.
+# leaves them alone: copy_downloads and process_core_assets respectively.
 SKIPPED_SUBDIRS = {"download", "core-assets"}
 
 
@@ -26,8 +26,8 @@ def process_assets() -> None:
     Images can be organized into any folder structure under ``assets/``
     (e.g. ``assets/projects/<project_name>/``), which is mirrored into
     ``dist/assets/``. ``assets/download/`` and ``assets/core-assets/`` are
-    skipped, since copy_downloads and copy_core_assets copy those as-is. See
-    docs/arch/0032.
+    skipped: copy_downloads copies the former as-is, and process_core_assets
+    handles the latter. See docs/arch/0032.
 
     Returns:
         None.

@@ -15,13 +15,33 @@
     {% set current_page = "projects" %}
     {% include "partials/header.html" %}
 
-    <main>
-      <section class="projects-intro box" aria-labelledby="projects-heading">
-        <h2 id="projects-heading" class="box-title"><span class="icon" aria-hidden="true">📁</span> Project Directory</h2>
-        <p>A selection of things I have built, researched, and shipped. Start with a featured project or browse the complete catalog below.</p>
-      </section>
+    {% set featured_projects = projects | selectattr('featured') | list %}
+    {% set tech_names = [] %}
+    {% for project in projects %}
+      {% for tech in project.technologies or [] %}
+        {% if tech.name not in tech_names %}{% set _ = tech_names.append(tech.name) %}{% endif %}
+      {% endfor %}
+    {% endfor %}
 
-      {% set featured_projects = projects | selectattr('featured') | list %}
+    <section class="project-hero projects-hero">
+      <p class="projects-kicker"><span class="icon" aria-hidden="true">📁</span> Project Directory</p>
+      <h2 class="project-title">Projects</h2>
+      <p class="education-meta">
+        <span><span class="icon" aria-hidden="true">🗂️</span> {{ projects | length }} project{{ "s" if projects | length != 1 }}</span>
+        {% if featured_projects %}<span><span class="icon" aria-hidden="true">⭐</span> {{ featured_projects | length }} featured</span>{% endif %}
+        {% if tech_names %}<span><span class="icon" aria-hidden="true">🔨</span> {{ tech_names | length }} technolog{{ "ies" if tech_names | length != 1 else "y" }}</span>{% endif %}
+      </p>
+      {% if projects %}
+      <ul class="project-actions" aria-label="Jump to a section">
+        {% if featured_projects %}
+        <li><a class="retro-button" href="#featured-projects"><span class="icon" aria-hidden="true">⭐</span>Featured Projects</a></li>
+        {% endif %}
+        <li><a class="retro-button" href="#project-catalog"><span class="icon" aria-hidden="true">🗂️</span>Full Catalog</a></li>
+      </ul>
+      {% endif %}
+    </section>
+
+    <main>
       {% if featured_projects %}
       <section id="featured-projects" class="projects-section" aria-labelledby="featured-heading">
         <div class="section-heading">

@@ -87,7 +87,7 @@
       <h2 class="project-title">{{ current.title }}</h2>
       <p class="project-subtitle">{{ current.organization }}</p>
       <p class="education-meta">
-        <span><span class="icon" aria-hidden="true">📅</span> {{ job_dates(current) }} ({{ job_length(current) }})</span>
+        <span><span class="icon" aria-hidden="true">📅</span> {{ job_dates(current) }}</span>
         {% if current.location %}<span><span class="icon" aria-hidden="true">📍</span> {{ current.location }}</span>{% endif %}
       </p>
       {% else %}
@@ -165,7 +165,7 @@
             <div class="xp-row">
               <span class="xp-row-label"><a href="#xp-job-{{ positions | length - loop.index0 }}">{{ job.title }}</a></span>
               <span class="xp-track">
-                <span class="xp-bar{% if not job.end %} is-current{% endif %}" style="left: {{ axis_pct(s) }}%; width: {{ axis_pct(axis_start + e - s + 1) }}%" title="{{ job.title }}, {{ job.organization }}: {{ job_dates(job) }} ({{ job_length(job) }})"></span>
+                <span class="xp-bar{% if not job.end %} is-current{% endif %}" style="left: {{ axis_pct(s) }}%; width: {{ axis_pct(axis_start + e - s + 1) }}%" title="{{ job.title }}, {{ job.organization }}: {{ job_dates(job) }}{% if job.end %} ({{ job_length(job) }}){% endif %}"></span>
               </span>
             </div>
             {% endfor %}
@@ -218,7 +218,7 @@
                 <div class="job-when">
                   {% if job.type %}<span class="job-type">{{ job.type }}</span>{% endif %}
                   <span>{{ job_dates(job) }}</span>
-                  <span class="job-length">{{ job_length(job) }}</span>
+                  {% if job.end %}<span class="job-length">{{ job_length(job) }}</span>{% endif %}
                 </div>
               </header>
               <div class="job-body">

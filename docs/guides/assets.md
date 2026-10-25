@@ -60,4 +60,4 @@ See [data-json.md](data-json.md) for the full list of fields.
 
 ## Current state
 
-Images anywhere under `assets/` (except `download/` and `core-assets/`) are copied into `dist/assets/` at the same path, and files in `assets/download/` are copied as-is to `dist/assets/download/`. The generator doesn't check that the files you reference actually exist, so a wrong path shows up as a broken image on the page rather than a build error.
+Images anywhere under `assets/` (except `download/` and `core-assets/`) are copied into `dist/assets/` at the same path, and files in `assets/download/` are copied as-is to `dist/assets/download/`. Raster images (PNG, JPEG, GIF, WebP) are pixelated (shrunk to half size, then scaled back up into 2×2 blocks) and dithered down to 32 colors for the retro look. SVGs and animated GIFs are copied unchanged ([docs/arch/0040](../arch/0040-pillow-dither-and-32-color-palette.md)). The generator doesn't check that the files you reference actually exist, so a wrong path shows up as a broken image on the page rather than a build error.
