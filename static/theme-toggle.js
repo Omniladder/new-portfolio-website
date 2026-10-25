@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function sync() {
     var current = document.documentElement.getAttribute("data-theme");
     toggle.textContent = current === "dark" ? "Light Mode" : "Dark Mode";
-    toggle.setAttribute("aria-pressed", current === "dark" ? "true" : "false");
   }
 
   toggle.addEventListener("click", function () {

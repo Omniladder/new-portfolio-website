@@ -59,7 +59,7 @@
               <a href="projects/{{ project.project_name }}/index.html">{{ project.title }}</a>
               — {{ project.tagline }}
               <div class="project-tech">
-                {% for tech in project.technologies %}({{ tech.name }}){% if not loop.last %} {% endif %}{% endfor %}
+                {% for tech in project.technologies[:6] %}({{ tech.name }}){% if not loop.last %} {% endif %}{% endfor %}
               </div>
             </li>
             {% endfor %}
@@ -132,9 +132,9 @@
 
     <footer class="site-footer">
       <nav class="site-nav">
-        <a href="index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a> |
-        <a href="projects/index.html"><span class="icon" aria-hidden="true">📁</span> Projects</a> |
-        <a href="education/index.html"><span class="icon" aria-hidden="true">🎓</span> Education</a> |
+        <a href="index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a>
+        <a href="projects/index.html"><span class="icon" aria-hidden="true">📁</span> Projects</a>
+        <a href="education/index.html"><span class="icon" aria-hidden="true">🎓</span> Education</a>
         <a href="experience/index.html"><span class="icon" aria-hidden="true">💼</span> Experience</a>
       </nav>
       <p class="retro-badge"><span class="icon" aria-hidden="true">⭐</span> Best viewed with any browser, preferably with JavaScript enabled.</p>

@@ -20,12 +20,12 @@
           </div>
           <img class="floppy-icon" src="{{ root }}assets/core-assets/icons/floppy-disk.svg" alt="" aria-hidden="true">
         </div>
-        <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="true">Light Mode</button>
+        <button id="theme-toggle" class="theme-toggle" type="button">Light Mode</button>
       </div>
       <nav class="site-nav" aria-label="Primary navigation">
-        <a href="{{ root }}index.html"{% if current_page == "home" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">🏠</span> Home</a> |
-        <a href="{{ root }}projects/index.html"{% if current_page == "projects" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">📁</span> Projects</a> |
-        <a href="{{ root }}education/index.html"{% if current_page == "education" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">🎓</span> Education</a> |
+        <a href="{{ root }}index.html"{% if current_page == "home" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">🏠</span> Home</a>
+        <a href="{{ root }}projects/index.html"{% if current_page == "projects" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">📁</span> Projects</a>
+        <a href="{{ root }}education/index.html"{% if current_page == "education" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">🎓</span> Education</a>
         <a href="{{ root }}experience/index.html"{% if current_page == "experience" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">💼</span> Experience</a>
       </nav>
     </header>

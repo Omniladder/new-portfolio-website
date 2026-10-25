@@ -120,7 +120,7 @@
             <li><a href="#xp-work"><span class="icon" aria-hidden="true">💼</span> Work History</a></li>
             {% endif %}
             {% if events %}
-            <li><a href="#xp-events"><span class="icon" aria-hidden="true">🏆</span> Hackathons</a></li>
+            <li><a href="#xp-events"><span class="icon" aria-hidden="true">🏆</span> Events</a></li>
             {% endif %}
             {% if certifications %}
             <li><a href="#xp-certifications"><span class="icon" aria-hidden="true">📜</span> Certifications</a></li>
@@ -135,7 +135,7 @@
           <h2 class="box-title">At a Glance</h2>
           <dl class="glance-list">
             {% if positions %}<div><dt>Positions</dt><dd>{{ positions | length }}</dd></div>{% endif %}
-            {% if events %}<div><dt>Hackathons</dt><dd>{{ events | length }}</dd></div>{% endif %}
+            {% if events %}<div><dt>Events</dt><dd>{{ events | length }}</dd></div>{% endif %}
             {% if award_count %}<div><dt>Awards won</dt><dd>{{ award_count }}</dd></div>{% endif %}
             {% if certifications %}<div><dt>Certifications</dt><dd>{{ certifications | length }}</dd></div>{% endif %}
             {% if linked_projects %}<div><dt>Projects</dt><dd>{{ linked_projects | unique | list | length }}</dd></div>{% endif %}
@@ -171,7 +171,7 @@
             {% endfor %}
             {% if events %}
             <div class="xp-row">
-              <span class="xp-row-label"><a href="#xp-events">Hackathons</a></span>
+              <span class="xp-row-label"><a href="#xp-events">Events</a></span>
               <span class="xp-track">
                 {% for event in events %}
                 <a class="xp-marker{% if event.awards %} has-award{% endif %}" href="#xp-event-{{ loop.index }}" style="left: {{ axis_pct((month_index(event.date) | int) + 0.5) }}%" title="{{ event.name }}: {{ event.dates or month_label(event.date) }}{% if event.awards %}, {{ event.awards | join(', ') }}{% endif %}" aria-label="{{ event.name }}">{{ "★" if event.awards else "◆" }}</a>
@@ -199,7 +199,7 @@
           <p class="gpa-note">
             <span class="xp-key xp-key-bar" aria-hidden="true"></span> job
             {% if positions | rejectattr("end") | list %}&nbsp; <span class="xp-key xp-key-bar is-current" aria-hidden="true"></span> ongoing{% endif %}
-            {% if events %}&nbsp; <span class="xp-key-glyph" aria-hidden="true">◆</span> hackathon{% if award_count %} &nbsp;<span class="xp-key-glyph has-award" aria-hidden="true">★</span> won an award{% endif %}{% endif %}
+            {% if events %}&nbsp; <span class="xp-key-glyph" aria-hidden="true">◆</span> event{% if award_count %} &nbsp;<span class="xp-key-glyph has-award" aria-hidden="true">★</span> won an award{% endif %}{% endif %}
             {% if certifications %}&nbsp; <span class="xp-key-glyph is-cert" aria-hidden="true">●</span> certification{% endif %}
           </p>
         </section>
@@ -254,8 +254,8 @@
 
         {% if events %}
         <section id="xp-events" class="box">
-          <h2 class="box-title"><span class="icon" aria-hidden="true">🏆</span> Hackathons</h2>
-          <p class="section-intro">Weekends spent building something from nothing, or helping others do it. Click a project to see what came out of it.</p>
+          <h2 class="box-title"><span class="icon" aria-hidden="true">🏆</span> Events</h2>
+          <p class="section-intro">Events taken part in, from hackathons to competitions. Click a project to see what came out of it.</p>
           <ul class="event-grid">
             {% for event in events %}
             {% set project = project_by_slug[event.project] if event.project in project_by_slug else none %}
@@ -345,9 +345,9 @@
 
     <footer class="site-footer">
       <nav class="site-nav" aria-label="Footer navigation">
-        <a href="../index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a> |
-        <a href="../projects/index.html"><span class="icon" aria-hidden="true">📁</span> Projects</a> |
-        <a href="../education/index.html"{% if current_page == "education" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">🎓</span> Education</a> |
+        <a href="../index.html"><span class="icon" aria-hidden="true">🏠</span> Home</a>
+        <a href="../projects/index.html"><span class="icon" aria-hidden="true">📁</span> Projects</a>
+        <a href="../education/index.html"{% if current_page == "education" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">🎓</span> Education</a>
         <a href="../experience/index.html"{% if current_page == "experience" %} aria-current="page"{% endif %}><span class="icon" aria-hidden="true">💼</span> Experience</a>
       </nav>
       <p class="retro-badge"><span class="icon" aria-hidden="true">⭐</span> Best viewed with any browser, preferably with JavaScript enabled.</p>

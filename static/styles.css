@@ -213,6 +213,16 @@ a:hover {
   margin-top: 0.75rem;
 }
 
+/* Separators are drawn here rather than typed between links, so they can
+   disappear in the phone grid below. inline-block keeps the bar from
+   picking up the link underline. */
+.site-nav a + a::before {
+  content: "|";
+  display: inline-block;
+  margin: 0 0.4em;
+  text-decoration: none;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Layout                                                                  */
 /* ---------------------------------------------------------------------- */
@@ -1777,6 +1787,21 @@ a.event-thumb:hover img {
   .computer-icon,
   .floppy-icon {
     display: none;
+  }
+
+  /* Four links in a two-column grid instead of one wrapping line. */
+  .site-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: start;
+    gap: 0.35rem 1rem;
+    width: fit-content;
+    margin: 0.75rem auto 0;
+    text-align: left;
+  }
+
+  .site-nav a + a::before {
+    content: none;
   }
 
   .sidebar {
