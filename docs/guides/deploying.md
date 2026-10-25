@@ -115,7 +115,9 @@ If the playbook itself fails, the failed task is printed above the error:
   output, usually a `data.json` problem. Reproduce it locally with
   `python3 generate.py`.
 - **Test nginx config**: the generated nginx config is invalid, usually a bad
-  `portfolio_server_name`. The live config isn't reloaded.
+  `portfolio_server_name`. The new files are already published, but nginx isn't
+  restarted, so it keeps serving the previous config until this is fixed and
+  you deploy again.
 - **`Missing sudo password`**: your SSH user needs a password for sudo. Add
   `-- --ask-become-pass` to the command, or allow passwordless sudo.
 

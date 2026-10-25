@@ -8,3 +8,15 @@
   roles:
     - nginx
     - portfolio
+  # Runs on every deploy, after the site is published. Handlers only fire on
+  # a changed task, so a deploy that left the nginx config alone would
+  # otherwise keep serving whatever config was live before.
+  post_tasks:
+    - name: Test nginx config
+      ansible.builtin.command: nginx -t
+      changed_when: false
+
+    - name: Restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted

@@ -21,26 +21,17 @@
     owner: root
     group: root
     mode: "0644"
-  notify:
-    - Test nginx config
-    - Reload nginx
 
 - name: Enable portfolio site
   ansible.builtin.file:
     src: /etc/nginx/sites-available/portfolio.conf
     dest: /etc/nginx/sites-enabled/portfolio.conf
     state: link
-  notify:
-    - Test nginx config
-    - Reload nginx
 
 - name: Disable default site
   ansible.builtin.file:
     path: /etc/nginx/sites-enabled/default
     state: absent
-  notify:
-    - Test nginx config
-    - Reload nginx
 
 - name: Start nginx on boot
   ansible.builtin.service:

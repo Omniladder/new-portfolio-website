@@ -4,8 +4,7 @@
 # Repo checkout on the controller that gets synced to the host.
 portfolio_repo_root: "{{ playbook_dir }}/.."
 
-# System user that owns the source copy and runs generate.py.
-portfolio_user: portfolio
+# Source copy, build venv, and generate.py all run as the SSH login user (root).
 portfolio_home: /opt/portfolio
 portfolio_src_dir: "{{ portfolio_home }}/src"
 portfolio_venv_dir: "{{ portfolio_home }}/venv"

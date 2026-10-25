@@ -8,19 +8,12 @@
       - acl
     state: present
 
-- name: Create portfolio user
-  ansible.builtin.user:
-    name: "{{ portfolio_user }}"
-    system: true
-    home: "{{ portfolio_home }}"
-    shell: /usr/sbin/nologin
-
 - name: Create source directory
   ansible.builtin.file:
     path: "{{ portfolio_src_dir }}"
     state: directory
-    owner: "{{ portfolio_user }}"
-    group: "{{ portfolio_user }}"
+    owner: root
+    group: root
     mode: "0755"
 
 - name: Check for data.json on the controller
@@ -39,28 +32,28 @@
 
 # data.json and assets/ are gitignored, so the host can't git-clone them;
 # rsync the working tree instead.
+# synchronize inherits the play's become and wraps rsync in `sudo`, which
+# fails on hosts that have no sudo. When SSH already logs in as root, rsync
+# can run directly, so only escalate for non-root logins.
 - name: Sync repo to host
   ansible.posix.synchronize:
     src: "{{ portfolio_repo_root }}/"
     dest: "{{ portfolio_src_dir }}/"
     delete: true
     recursive: true
-    rsync_opts: "{{ ['--chown=' ~ portfolio_user ~ ':' ~ portfolio_user] + (portfolio_sync_excludes | map('regex_replace', '^', '--exclude=') | list) }}"
+    rsync_opts: "{{ portfolio_sync_excludes | map('regex_replace', '^', '--exclude=') | list }}"
+  become: "{{ ansible_user_id != 'root' }}"
 
 - name: Install Python requirements
   ansible.builtin.pip:
     requirements: "{{ portfolio_src_dir }}/requirements.txt"
     virtualenv: "{{ portfolio_venv_dir }}"
     virtualenv_command: python3 -m venv
-  become: true
-  become_user: "{{ portfolio_user }}"
 
 - name: Build site
   ansible.builtin.command:
     argv: "{{ [portfolio_venv_dir ~ '/bin/python', 'generate.py'] + ([] if portfolio_image_processing else ['--no-image-processing']) }}"
     chdir: "{{ portfolio_src_dir }}"
-  become: true
-  become_user: "{{ portfolio_user }}"
   environment:
     NO_COLOR: "1"
   register: portfolio_build
