@@ -1,4 +1,4 @@
-# new-portfolio-site
+# 90s Portfolio Website
 
 A personal portfolio site generated from a single JSON file, styled like it's 1997.
 
